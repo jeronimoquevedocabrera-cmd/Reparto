@@ -246,7 +246,8 @@ document.querySelectorAll(".tabs button").forEach(function(b){
 
 /* ============ parser hoja de pedido ============ */
 var RE_ITEM=/^(\d{3,6})\s+(.+?)\s+(\d{1,4}(?:[.,]\d{1,2})?)\s+(?:Unidad(?:es)?|Uds?\.?|Ud|M2|ML)\s+([\d.,]+)\s+([\d.,]+)\s*$/i;
-var RE_CAB=/^([A-Z]?\d{4,6})\s+(\d{2}\/\d{2}\/\d{4})\s+(.+)$/;
+var RE_CAB=/(?:^|\s)([A-Z]\d{4,6})\s+(\d{2}\/\d{2}\/\d{4})\b/;
+var RE_CLI=/^\d{1,3}(?:\.\d{3})*\s+([A-ZÁÉÍÓÚÑÜ][A-ZÁÉÍÓÚÑÜ .,\x27-]{3,})$/;
 var RE_CP=/^(\d{5})\s+([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s.\-]{2,})$/;
 var RE_CALLE=/^(C\/|CALLE|AVDA|AVENIDA|PASEO|PLAZA|URB|URBANIZACION|CAMINO|CTRA|CARRETERA|LUGAR|BARRIO|TRAVESIA)\b/i;
 var RE_FIN=/^(Bruto|Descuento|Base Imponible|I\.?\s?G\.?\s?I\.?\s?C|Términos|Terminos|Forma pago|Condiciones|Total)\b/i;
@@ -272,12 +273,14 @@ function parseHoja(lineas){
     if(/^PEDIDO\s+FECHA/i.test(l)) continue;
     if(RE_CALLE.test(l) && !calle){ calle=l; continue; }
     if(RE_CP.test(l) && !cp){ cp=l; continue; }
+    var mcl=!enItems && !r.cliente && RE_CLI.exec(l);
+    if(mcl){ r.cliente=mcl[1].trim(); continue; }
     var mc=RE_CAB.exec(l);
-    if(mc && !r.pedido && !RE_ITEM.test(l)){ r.pedido=mc[1]; r.fecha=mc[2]; esperaCli=true; continue; }
-    if(esperaCli && !RE_ITEM.test(l)){ r.cliente=l; esperaCli=false; continue; }
+    if(mc && !r.pedido && !RE_ITEM.test(l)){ r.pedido=mc[1]; r.fecha=mc[2]; esperaCli=!r.cliente; continue; }
+    if(esperaCli && !RE_ITEM.test(l)){ if(!r.cliente && !/^\d/.test(l)) r.cliente=l; esperaCli=false; continue; }
     var m=RE_ITEM.exec(l);
     if(m){
-      enItems=true;
+      enItems=true; esperaCli=false;
       last={code:m[1], desc:m[2].trim(), cant:parseFloat(String(m[3]).replace(",","."))||1};
       last.modo=modoAuto(last.desc);
       r.lineas.push(last); continue;
@@ -346,18 +349,23 @@ async function textoDePdf(file){
   var pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
   var out=[];
   for(var p=1;p<=pdf.numPages;p++){
-    var tc=await (await pdf.getPage(p)).getTextContent(), filas={};
-    tc.items.forEach(function(it){
-      if(!it.str||!it.str.trim()) return;
-      var y=Math.round(it.transform[5]/3)*3;
-      (filas[y]=filas[y]||[]).push({x:it.transform[4], s:it.str});
-    });
-    Object.keys(filas).map(Number).sort(function(a,b){return b-a;}).forEach(function(y){
-      var s=filas[y].sort(function(a,b){return a.x-b.x;}).map(function(o){return o.s;}).join(" ").replace(/\s+/g," ").trim();
-      if(s) out.push(s);
-    });
+    var tc=await (await pdf.getPage(p)).getTextContent();
+    out=out.concat(agruparFilas(tc.items));
   }
   return out;
+}
+function agruparFilas(items){
+  var its=items.filter(function(it){ return it.str && it.str.trim(); })
+    .map(function(it){ return {x:it.transform[4], y:it.transform[5], s:it.str}; })
+    .sort(function(a,b){ return b.y-a.y || a.x-b.x; });
+  var filas=[], cur=null;
+  its.forEach(function(it){
+    if(cur && Math.abs(cur.y-it.y)<=2){ cur.items.push(it); }
+    else { cur={y:it.y, items:[it]}; filas.push(cur); }
+  });
+  return filas.map(function(f){
+    return f.items.sort(function(a,b){return a.x-b.x;}).map(function(o){return o.s;}).join(" ").replace(/\s+/g," ").trim();
+  }).filter(Boolean);
 }
 function abrirRevision(r){
   borrador=r;
