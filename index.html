@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1d3b33">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<title>Reparto · Wood Store</title>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.min.js"></script>
+<style>
+:root{
+  color-scheme: light;
+  --bg:#eef0ec; --surface:#ffffff; --surface-2:#e4e8e2; --line:#cfd6cd;
+  --ink:#17201c; --muted:#5d6a63; --pine:#1d3b33; --pine-2:#2c5a4d;
+  --ok:#1e7a46; --ok-bg:#d9efe1; --warn:#b4401a; --warn-bg:#f7e0d6; --hi:#f2c230;
+  box-sizing:border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    color-scheme: dark;
+    --bg:#101513; --surface:#18201c; --surface-2:#212b26; --line:#2e3a34;
+    --ink:#e8eee9; --muted:#9aa8a0; --pine:#0c1a16; --pine-2:#3f7d6b;
+    --ok:#5fd18e; --ok-bg:#183326; --warn:#f2895f; --warn-bg:#3a1f15; --hi:#f2c230;
+  }
+}
+*,*::before,*::after{box-sizing:border-box}
+html{scroll-padding-top: env(safe-area-inset-top, 0px)}
+body{margin:0;background:var(--bg);color:var(--ink);
+  font-family:system-ui,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+  font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--pine);z-index:20}
+header{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--pine);color:#fff}
+.bar{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 14px}
+.marca{font-weight:700;letter-spacing:.01em;flex:1}
+.marca small{display:block;font-weight:400;opacity:.7;font-size:.75rem}
+.tabs{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px}
+.tabs button{background:none;border:0;color:#fff;opacity:.75;font:inherit;font-size:.9rem;
+  padding:8px 14px;border-radius:8px;cursor:pointer}
+.tabs button.on{background:#fff;color:var(--pine);opacity:1;font-weight:600}
+main{max-width:760px;margin:0 auto;padding:14px 14px 80px}
+section{display:none}
+section.on{display:block}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
+h2{font-size:1rem;margin:0 0 6px}
+label{display:block;font-size:.8rem;color:var(--muted);margin:12px 0 4px}
+input,textarea,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;
+  background:var(--surface-2);color:var(--ink);font:inherit}
+textarea{min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:.82rem}
+.btn{display:inline-flex;justify-content:center;align-items:center;gap:8px;background:var(--pine-2);
+  color:#fff;border:0;border-radius:10px;padding:13px 18px;font:inherit;font-weight:600;cursor:pointer;min-height:48px}
+.btn.sec{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
+.btn.big{width:100%;font-size:1.1rem;min-height:60px}
+.btn:focus-visible,.tabs button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
+.row>*{flex:1 1 140px}
+.hint{font-size:.85rem;color:var(--muted);margin:6px 0 0}
+.empty{text-align:center;padding:28px 18px;color:var(--muted)}
+.empty b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:4px}
+
+/* escáner */
+.visor{position:relative;border-radius:14px;overflow:hidden;background:#000;margin-top:12px;display:none}
+.visor.on{display:block}
+.visor video{width:100%;height:44vh;object-fit:cover;display:block}
+.visor .marco{position:absolute;inset:18% 22%;border:3px solid rgba(255,255,255,.85);border-radius:14px;
+  box-shadow:0 0 0 2000px rgba(0,0,0,.28);transition:border-color .15s}
+.visor.flash-ok .marco{border-color:#4ade80}
+.visor.flash-ko .marco{border-color:#f87171}
+#scanMsg{margin:10px 2px 0;font-weight:600;min-height:1.4em}
+
+/* marcador */
+.marcador{border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px}
+.marcador.pend{background:var(--warn-bg);color:var(--warn)}
+.marcador.ok{background:var(--ok-bg);color:var(--ok)}
+.marcador .num{font-size:3.2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.marcador .num span{font-size:1.6rem;opacity:.7;font-weight:700}
+.marcador .txt{font-weight:600;font-size:1rem}
+.chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
+.chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;
+  padding:7px 12px;font:inherit;font-size:.85rem;cursor:pointer}
+.chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
+ul.lista{list-style:none;padding:0;margin:10px 0 0}
+ul.lista li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
+ul.lista li:last-child{border-bottom:0}
+.tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--line);flex:0 0 auto;display:grid;place-items:center;font-weight:700}
+li.done .tick{background:var(--ok);border-color:var(--ok);color:#fff}
+li.done .d{color:var(--muted);text-decoration:line-through}
+li.recien{animation:pulso .9s ease-out}
+@keyframes pulso{from{background:var(--ok-bg)}to{background:transparent}}
+@media (prefers-reduced-motion: reduce){li.recien{animation:none}}
+.d{font-size:.95rem}
+.sub{font-size:.78rem;color:var(--muted)}
+
+/* almacén */
+.lin{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
+.lin>div{flex:1 1 auto;min-width:0}
+.lin select{width:auto;flex:0 0 auto;font-size:.82rem;padding:7px 8px}
+.lin.off{opacity:.45}
+.total{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:2px solid var(--line);font-weight:700}
+.maestro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
+.maestro .qr{width:220px;max-width:100%;background:#fff;padding:10px;border-radius:10px}
+.maestro .qr svg{width:100%;height:auto;display:block}
+.ped{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.ped:last-child{border-bottom:0}
+.ped .acc{display:flex;gap:6px;flex:0 0 auto}
+.ped .acc .btn{min-height:40px;padding:8px 12px;font-size:.85rem}
+
+/* impresión */
+#hoja{display:none}
+@media print{
+  @page{size:A4;margin:8mm}
+  body{background:#fff;color:#000;padding:0}
+  body::before,header,main{display:none !important}
+  #hoja{display:block !important}
+}
+.cab{display:flex;gap:6mm;align-items:center;border:1.5px solid #000;border-radius:3mm;padding:4mm;margin-bottom:5mm;break-inside:avoid}
+.cab .qrm{width:72mm;height:72mm;flex:0 0 auto}
+.cab .qrm svg{width:100%;height:100%;display:block}
+.cab h1{font-size:18pt;margin:0 0 2mm}
+.cab p{margin:0 0 1.5mm;font-size:10pt}
+.cab .aviso{margin-top:3mm;font-weight:700;font-size:10pt}
+.grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm}
+.et{border:1px dashed #999;border-radius:2mm;padding:2.5mm;display:flex;gap:3mm;align-items:center;background:#fff;color:#000;break-inside:avoid}
+.et .qr{width:27mm;height:27mm;flex:0 0 auto}
+.et .qr svg{width:100%;height:100%;display:block}
+.et .t{min-width:0;font-size:8.5pt;line-height:1.25}
+.et .p{font-weight:800;font-size:12pt}
+.et .b{font-weight:700}
+.et .ds{overflow:hidden;max-height:3.8em}
+.et .cl{font-size:7.5pt;color:#444}
+</style>
+</head>
+<body>
+<header>
+  <div class="bar">
+    <div class="marca">Wood Store<small>Control de carga</small></div>
+    <div class="tabs" role="tablist">
+      <button data-tab="reparto" class="on">Reparto</button>
+      <button data-tab="almacen">Almacén</button>
+    </div>
+  </div>
+</header>
+
+<main>
+<!-- ================= REPARTO ================= -->
+<section id="reparto" class="on">
+  <button class="btn big" id="btnCam">Escanear</button>
+  <div class="visor" id="visor"><video id="video" playsinline muted></video><div class="marco"></div></div>
+  <p id="scanMsg"></p>
+
+  <div id="sinPedido" class="card empty">
+    <b>Ningún pedido cargado</b>
+    Pulsa «Escanear» y apunta al código grande de la hoja de carga. Después ve pasando las etiquetas de cada bulto.
+  </div>
+
+  <div id="conPedido" style="display:none">
+    <div class="chips" id="chips"></div>
+    <div class="marcador pend" id="marcador"></div>
+    <div class="card">
+      <h2 id="rTitulo"></h2>
+      <p class="hint" id="rCliente"></p>
+      <ul class="lista" id="rLista"></ul>
+    </div>
+    <div class="row">
+      <button class="btn" id="btnResumen">Enviar resumen</button>
+      <button class="btn sec" id="btnReiniciar">Empezar de nuevo</button>
+      <button class="btn sec" id="btnQuitar">Quitar pedido</button>
+    </div>
+  </div>
+</section>
+
+<!-- ================= ALMACÉN ================= -->
+<section id="almacen">
+  <div class="card">
+    <h2>Nueva hoja de carga</h2>
+    <label for="fPdf">Hoja de pedido en PDF</label>
+    <input type="file" id="fPdf" accept="application/pdf">
+    <p class="hint" id="msgPdf">Se leen el pedido, el cliente, la dirección y todas las líneas.</p>
+    <details style="margin-top:12px">
+      <summary class="hint" style="cursor:pointer">o pegar el texto del pedido</summary>
+      <textarea id="fTexto" style="margin-top:8px" placeholder="9437 MODULO ALTO 70X60X33 BLANCO 1,00 Unidad 33,20 33,20"></textarea>
+      <div class="row"><button class="btn sec" id="btnTexto">Leer texto</button></div>
+    </details>
+  </div>
+
+  <div class="card" id="revision" style="display:none">
+    <h2>Revisar antes de imprimir</h2>
+    <div class="row" style="margin-top:0">
+      <div><label for="fPed">Pedido</label><input id="fPed"></div>
+      <div><label for="fFec">Fecha de entrega</label><input id="fFec" placeholder="dd/mm/aaaa"></div>
+    </div>
+    <label for="fCli">Cliente</label><input id="fCli">
+    <label for="fDir">Dirección</label><input id="fDir">
+    <label>Cómo se etiqueta cada línea</label>
+    <p class="hint">Una por unidad para puertas y módulos, una sola para un lote de herrajes, ninguna para mano de obra.</p>
+    <div id="lineas"></div>
+    <div class="total"><span>Etiquetas</span><span id="totEt">0</span></div>
+    <div class="row">
+      <button class="btn" id="btnGenerar">Crear hoja de carga</button>
+      <button class="btn sec" id="btnDescartar">Descartar</button>
+    </div>
+    <p class="hint" id="msgGen"></p>
+  </div>
+
+  <div class="card" id="panelMaestro" style="display:none">
+    <h2 id="mTitulo"></h2>
+    <div class="maestro">
+      <div class="qr" id="mQr"></div>
+      <div style="flex:1 1 200px">
+        <p class="hint" style="margin-top:0">Este es el código del pedido completo. Va impreso arriba de la hoja; el repartidor también puede escanearlo directamente desde esta pantalla.</p>
+        <div class="row"><button class="btn" id="btnImprimir">Imprimir hoja y etiquetas</button></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Pedidos recientes</h2>
+    <div id="recientes"><p class="hint">Aún no has creado ninguna hoja de carga en este equipo.</p></div>
+  </div>
+</section>
+</main>
+
+<div id="hoja"></div>
+
+<script>
+"use strict";
+/* ============ utilidades ============ */
+function $(id){ return document.getElementById(id); }
+function txt(id,t){ var e=$(id); if(e) e.textContent=t; }
+function lsGet(k,f){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
+function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
+function limpia(s){
+  return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
+    .replace(/[^\x20-\x7E]/g,"").replace(/[;|]/g," ").replace(/\s+/g," ").trim();
+}
+document.querySelectorAll(".tabs button").forEach(function(b){
+  b.addEventListener("click",function(){
+    document.querySelectorAll(".tabs button").forEach(function(x){ x.classList.toggle("on",x===b); });
+    document.querySelectorAll("section").forEach(function(s){ s.classList.toggle("on", s.id===b.dataset.tab); });
+    if(b.dataset.tab!=="reparto") pararCam();
+  });
+});
+
+/* ============ parser hoja de pedido ============ */
+var RE_ITEM=/^(\d{3,6})\s+(.+?)\s+(\d{1,4}(?:[.,]\d{1,2})?)\s+(?:Unidad(?:es)?|Uds?\.?|Ud|M2|ML)\s+([\d.,]+)\s+([\d.,]+)\s*$/i;
+var RE_CAB=/^([A-Z]?\d{4,6})\s+(\d{2}\/\d{2}\/\d{4})\s+(.+)$/;
+var RE_CP=/^(\d{5})\s+([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s.\-]{2,})$/;
+var RE_CALLE=/^(C\/|CALLE|AVDA|AVENIDA|PASEO|PLAZA|URB|URBANIZACION|CAMINO|CTRA|CARRETERA|LUGAR|BARRIO|TRAVESIA)\b/i;
+var RE_FIN=/^(Bruto|Descuento|Base Imponible|I\.?\s?G\.?\s?I\.?\s?C|Términos|Terminos|Forma pago|Condiciones|Total)\b/i;
+var SERVICIO=/\b(COLOCACION|COLOCACIÓN|INSTALACION|INSTALACIÓN|MONTAJE|MANO DE OBRA|TRANSPORTE|PORTES|DESMONTAJE|MEDICION|MEDICIÓN)\b/i;
+var GRANDE=/\b(PUERTA|MODULO|MÓDULO|COLUMNA|COSTADO|ESQUINAL|ENCIMERA|COMPAC|TABLERO|FRENTE|REGLETA|ZOCALO|ZÓCALO|ESCURRIDOR|CAMPANA|GOLA|PANEL|BANCADA|ESTANTE|BALDA|LAVADERO|ALACENA|VITRINA|CAJONERA|REMATE)\b/i;
+var PEQUENO=/\b(LATERAL|ESCUADRA|TAPA|TAPON|TAPÓN|SOPORTE|KIT|BISAGRA|TORNILLO|TACO|COLGAD|BOLSA|PATAS?|FONDO|TRASERA|TIRADOR|GUIA|GUÍA|CLIP|ANGULO|ÁNGULO|CANTO|HERRAJE|PERFIL UNION)\b/i;
+function modoAuto(desc){
+  if(SERVICIO.test(desc)) return "x";
+  if(PEQUENO.test(desc)) return "b";
+  if(GRANDE.test(desc) || /\bMOD\.?\s/i.test(desc)) return "u";
+  return "b";
+}
+function parseHoja(lineas){
+  var r={pedido:"",fecha:"",cliente:"",direccion:"",lineas:[]};
+  var cab={}, enItems=false, fin=false, last=null, calle="", cp="", esperaCli=false;
+  for(var i=0;i<lineas.length;i++){
+    var l=String(lineas[i]).replace(/\s+/g," ").trim();
+    if(!l) continue;
+    if(RE_FIN.test(l)) fin=true;
+    if(fin) continue;
+    if(enItems && cab[l]) continue;
+    if(!enItems) cab[l]=true;
+    if(/^PEDIDO\s+FECHA/i.test(l)) continue;
+    if(RE_CALLE.test(l) && !calle){ calle=l; continue; }
+    if(RE_CP.test(l) && !cp){ cp=l; continue; }
+    var mc=RE_CAB.exec(l);
+    if(mc && !r.pedido && !RE_ITEM.test(l)){ r.pedido=mc[1]; r.fecha=mc[2]; esperaCli=true; continue; }
+    if(esperaCli && !RE_ITEM.test(l)){ r.cliente=l; esperaCli=false; continue; }
+    var m=RE_ITEM.exec(l);
+    if(m){
+      enItems=true;
+      last={code:m[1], desc:m[2].trim(), cant:parseFloat(String(m[3]).replace(",","."))||1};
+      last.modo=modoAuto(last.desc);
+      r.lineas.push(last); continue;
+    }
+    if(last && enItems && l.length<80 && !/\d{5}/.test(l) && !RE_CALLE.test(l)){
+      last.desc+=" "+l; last.modo=modoAuto(last.desc);
+    }
+  }
+  r.direccion=[calle,cp].filter(Boolean).join(", ");
+  return r;
+}
+function construirPiezas(lins){
+  var out=[], n=0;
+  lins.forEach(function(L){
+    if(L.modo==="x") return;
+    var k=(L.modo==="u")?Math.max(1,Math.round(L.cant)):1;
+    for(var c=1;c<=k;c++){
+      n++;
+      var d=L.desc;
+      if(k>1) d+=" ("+c+"/"+k+")"; else if(L.cant>1) d+=" ("+String(L.cant).replace(".",",")+" uds)";
+      out.push({n:n, code:L.code, desc:d});
+    }
+  });
+  return out;
+}
+
+/* ============ QR maestro: codificar / decodificar ============ */
+function codificarMaestro(p, largo){
+  var cab=["WSM1", limpia(p.id), limpia(p.fecha), limpia(p.cliente).slice(0,40), limpia(p.direccion).slice(0,60)];
+  var ls=p.lineas.filter(function(L){return L.modo!=="x";}).map(function(L){
+    return limpia(L.code)+";"+L.cant+";"+L.modo+";"+limpia(L.desc).slice(0,largo);
+  });
+  return cab.concat(ls).join("\n");
+}
+function decodificarMaestro(s){
+  var ls=String(s).split(/\r?\n/);
+  if(ls[0]!=="WSM1") return null;
+  var p={id:ls[1]||"", fecha:ls[2]||"", cliente:ls[3]||"", direccion:ls[4]||"", lineas:[]};
+  for(var i=5;i<ls.length;i++){
+    var f=ls[i].split(";"); if(f.length<4) continue;
+    p.lineas.push({code:f[0], cant:parseFloat(f[1])||1, modo:f[2], desc:f.slice(3).join(" ")});
+  }
+  p.piezas=construirPiezas(p.lineas);
+  return p.id && p.piezas.length ? p : null;
+}
+function svgQR(texto, ecc){
+  var q=qrcode(0, ecc||"M"); q.addData(texto); q.make();
+  return q.createSvgTag({cellSize:4, margin:0, scalable:true});
+}
+function svgMaestro(p){
+  var largos=[18,12,0];
+  for(var i=0;i<largos.length;i++){
+    try{ return svgQR(codificarMaestro(p,largos[i]),"L"); }catch(e){}
+  }
+  return "";
+}
+
+/* ============ ALMACÉN ============ */
+var borrador=null;
+var almacen=lsGet("wsa_pedidos",{});
+
+function pdfLib(){ return window.pdfjsLib || window["pdfjs-dist/build/pdf"] || null; }
+async function textoDePdf(file){
+  var lib=pdfLib(); if(!lib) throw new Error("pdf.js no cargado");
+  lib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
+  var pdf=await lib.getDocument({data:new Uint8Array(await file.arrayBuffer())}).promise;
+  var out=[];
+  for(var p=1;p<=pdf.numPages;p++){
+    var tc=await (await pdf.getPage(p)).getTextContent(), filas={};
+    tc.items.forEach(function(it){
+      if(!it.str||!it.str.trim()) return;
+      var y=Math.round(it.transform[5]/3)*3;
+      (filas[y]=filas[y]||[]).push({x:it.transform[4], s:it.str});
+    });
+    Object.keys(filas).map(Number).sort(function(a,b){return b-a;}).forEach(function(y){
+      var s=filas[y].sort(function(a,b){return a.x-b.x;}).map(function(o){return o.s;}).join(" ").replace(/\s+/g," ").trim();
+      if(s) out.push(s);
+    });
+  }
+  return out;
+}
+function abrirRevision(r){
+  borrador=r;
+  $("fPed").value=r.pedido||""; $("fFec").value=r.fecha||"";
+  $("fCli").value=r.cliente||""; $("fDir").value=r.direccion||"";
+  $("revision").style.display="block"; $("panelMaestro").style.display="none";
+  pintarLineas();
+  txt("msgPdf", r.lineas.length+" líneas leídas. Revísalas abajo.");
+  $("revision").scrollIntoView({behavior:"smooth"});
+}
+function pintarLineas(){
+  var c=$("lineas"); c.innerHTML="";
+  borrador.lineas.forEach(function(L){
+    var row=document.createElement("div"); row.className="lin"+(L.modo==="x"?" off":"");
+    var izq=document.createElement("div");
+    var d=document.createElement("div"); d.className="d"; d.textContent=L.desc;
+    var s=document.createElement("div"); s.className="sub"; s.textContent="Art. "+L.code+", "+String(L.cant).replace(".",",")+" ud"+(L.cant!==1?"s":"");
+    izq.appendChild(d); izq.appendChild(s);
+    var sel=document.createElement("select");
+    [["u","Una por unidad ("+Math.max(1,Math.round(L.cant))+")"],["b","Una para el lote"],["x","Sin etiqueta"]].forEach(function(o){
+      var op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; sel.appendChild(op);
+    });
+    sel.value=L.modo;
+    sel.addEventListener("change",function(){ L.modo=sel.value; pintarLineas(); });
+    row.appendChild(izq); row.appendChild(sel); c.appendChild(row);
+  });
+  txt("totEt", String(construirPiezas(borrador.lineas).length));
+}
+$("fPdf").addEventListener("change",async function(ev){
+  var f=ev.target.files&&ev.target.files[0]; if(!f) return;
+  txt("msgPdf","Leyendo el PDF…");
+  try{
+    var r=parseHoja(await textoDePdf(f));
+    if(!r.lineas.length) txt("msgPdf","No se ha encontrado ninguna línea de artículo. Si el PDF es un escaneado, pega el texto a mano.");
+    else abrirRevision(r);
+  }catch(e){ console.warn(e); txt("msgPdf","No se ha podido abrir el PDF. Pega el texto a mano."); }
+  ev.target.value="";
+});
+$("btnTexto").addEventListener("click",function(){
+  var r=parseHoja($("fTexto").value.split("\n"));
+  if(!r.lineas.length) txt("msgPdf","No se ha encontrado ninguna línea de artículo en el texto.");
+  else abrirRevision(r);
+});
+$("btnDescartar").addEventListener("click",function(){
+  borrador=null; $("revision").style.display="none"; txt("msgPdf","Se leen el pedido, el cliente, la dirección y todas las líneas.");
+});
+$("btnGenerar").addEventListener("click",function(){
+  if(!borrador) return;
+  var id=limpia($("fPed").value);
+  if(!id){ txt("msgGen","Falta el número de pedido."); return; }
+  var piezas=construirPiezas(borrador.lineas);
+  if(!piezas.length){ txt("msgGen","Ninguna línea tiene etiqueta."); return; }
+  var p={id:id, fecha:$("fFec").value.trim(), cliente:$("fCli").value.trim(), direccion:$("fDir").value.trim(),
+    lineas:borrador.lineas, creado:Date.now()};
+  almacen[id]=p; lsSet("wsa_pedidos",almacen);
+  borrador=null; $("revision").style.display="none"; txt("msgGen","");
+  mostrarMaestro(id); pintarRecientes();
+});
+function mostrarMaestro(id){
+  var p=almacen[id]; if(!p) return;
+  txt("mTitulo","Pedido "+p.id+" listo: "+construirPiezas(p.lineas).length+" etiquetas");
+  $("mQr").innerHTML=svgMaestro(p);
+  $("panelMaestro").style.display="block";
+  $("panelMaestro").dataset.id=id;
+  prepararHoja(p);
+  $("panelMaestro").scrollIntoView({behavior:"smooth"});
+}
+$("btnImprimir").addEventListener("click",function(){
+  var id=$("panelMaestro").dataset.id; if(!id) return;
+  prepararHoja(almacen[id]); window.print();
+});
+function pintarRecientes(){
+  var c=$("recientes"), ids=Object.keys(almacen).sort(function(a,b){return (almacen[b].creado||0)-(almacen[a].creado||0);});
+  if(!ids.length){ c.innerHTML='<p class="hint">Aún no has creado ninguna hoja de carga en este equipo.</p>'; return; }
+  c.innerHTML="";
+  ids.slice(0,30).forEach(function(id){
+    var p=almacen[id];
+    var row=document.createElement("div"); row.className="ped";
+    var t=document.createElement("div");
+    var a=document.createElement("div"); a.className="d"; a.textContent=p.id+"  "+(p.cliente||"");
+    var b=document.createElement("div"); b.className="sub"; b.textContent=(p.fecha?p.fecha+", ":"")+construirPiezas(p.lineas).length+" etiquetas";
+    t.appendChild(a); t.appendChild(b);
+    var acc=document.createElement("div"); acc.className="acc";
+    var v=document.createElement("button"); v.className="btn sec"; v.textContent="Abrir";
+    v.addEventListener("click",function(){ mostrarMaestro(id); });
+    var del=document.createElement("button"); del.className="btn sec"; del.textContent="Borrar";
+    del.addEventListener("click",function(){
+      if(!confirm("¿Borrar el pedido "+id+" de este equipo?")) return;
+      delete almacen[id]; lsSet("wsa_pedidos",almacen); pintarRecientes();
+      if($("panelMaestro").dataset.id===id) $("panelMaestro").style.display="none";
+    });
+    acc.appendChild(v); acc.appendChild(del);
+    row.appendChild(t); row.appendChild(acc); c.appendChild(row);
+  });
+}
+function prepararHoja(p){
+  var piezas=construirPiezas(p.lineas), h=$("hoja"); h.innerHTML="";
+  var cab=document.createElement("div"); cab.className="cab";
+  var q=document.createElement("div"); q.className="qrm"; q.innerHTML=svgMaestro(p);
+  var info=document.createElement("div");
+  var h1=document.createElement("h1"); h1.textContent="Hoja de carga · "+p.id;
+  info.appendChild(h1);
+  [p.cliente, p.direccion, (p.fecha?"Entrega: "+p.fecha:""), piezas.length+" bultos"].forEach(function(s){
+    if(!s) return; var e=document.createElement("p"); e.textContent=s; info.appendChild(e);
+  });
+  var av=document.createElement("p"); av.className="aviso"; av.textContent="Repartidor: escanea primero este código y después la etiqueta de cada bulto.";
+  info.appendChild(av);
+  cab.appendChild(q); cab.appendChild(info); h.appendChild(cab);
+  var g=document.createElement("div"); g.className="grid";
+  piezas.forEach(function(pz){
+    var et=document.createElement("div"); et.className="et";
+    var qq=document.createElement("div"); qq.className="qr"; qq.innerHTML=svgQR("WS|"+p.id+"|"+pz.n,"M");
+    var t=document.createElement("div"); t.className="t";
+    var a=document.createElement("div"); a.className="p"; a.textContent=p.id;
+    var b=document.createElement("div"); b.className="b"; b.textContent="Bulto "+pz.n+" de "+piezas.length+"   Art. "+pz.code;
+    var c=document.createElement("div"); c.className="ds"; c.textContent=pz.desc;
+    var d=document.createElement("div"); d.className="cl"; d.textContent=p.cliente||"";
+    t.appendChild(a); t.appendChild(b); t.appendChild(c); t.appendChild(d);
+    et.appendChild(qq); et.appendChild(t); g.appendChild(et);
+  });
+  h.appendChild(g);
+}
+
+/* ============ REPARTO ============ */
+var ruta=lsGet("wsr_pedidos",{});
+var activo=lsGet("wsr_activo",null);
+var ultimoN=null;
+
+function marcas(id){ return lsGet("wsr_m_"+id,{}); }
+function guardarMarcas(id,m){ lsSet("wsr_m_"+id,m); }
+function pintarReparto(){
+  var ids=Object.keys(ruta);
+  if(activo && !ruta[activo]) activo=null;
+  if(!activo && ids.length) activo=ids[0];
+  lsSet("wsr_activo",activo);
+  $("sinPedido").style.display=activo?"none":"block";
+  $("conPedido").style.display=activo?"block":"none";
+  if(!activo) return;
+  var ch=$("chips"); ch.innerHTML="";
+  if(ids.length>1){
+    ids.forEach(function(id){
+      var p=ruta[id], m=marcas(id), k=p.piezas.filter(function(z){return m[z.n];}).length;
+      var b=document.createElement("button"); b.className="chip"+(id===activo?" on":"");
+      b.textContent=id+"  "+k+"/"+p.piezas.length;
+      b.addEventListener("click",function(){ activo=id; ultimoN=null; pintarReparto(); });
+      ch.appendChild(b);
+    });
+  }
+  var p=ruta[activo], m=marcas(activo);
+  var k=p.piezas.filter(function(z){return m[z.n];}).length, tot=p.piezas.length, falt=tot-k;
+  var mk=$("marcador"); mk.className="marcador "+(falt?"pend":"ok"); mk.innerHTML="";
+  var num=document.createElement("div"); num.className="num"; num.innerHTML=k+"<span> / "+tot+"</span>";
+  var t=document.createElement("div"); t.className="txt";
+  t.textContent= falt ? ("Faltan "+falt+" bulto"+(falt>1?"s":"")+" por cargar") : "Carga completa. Todo está en el camión.";
+  mk.appendChild(num); mk.appendChild(t);
+  txt("rTitulo","Pedido "+p.id);
+  txt("rCliente",[p.cliente,p.direccion,p.fecha].filter(Boolean).join(". "));
+  var ul=$("rLista"); ul.innerHTML="";
+  var orden=p.piezas.slice().sort(function(a,b){ return (m[a.n]?1:0)-(m[b.n]?1:0) || a.n-b.n; });
+  orden.forEach(function(z){
+    var li=document.createElement("li");
+    if(m[z.n]) li.classList.add("done");
+    if(z.n===ultimoN) li.classList.add("recien");
+    var tk=document.createElement("span"); tk.className="tick"; tk.textContent=m[z.n]?"✓":"";
+    var d=document.createElement("div");
+    var a=document.createElement("div"); a.className="d"; a.textContent=z.desc;
+    var b=document.createElement("div"); b.className="sub"; b.textContent="Bulto "+z.n+", art. "+z.code;
+    d.appendChild(a); d.appendChild(b);
+    li.appendChild(tk); li.appendChild(d);
+    li.addEventListener("click",function(){
+      var mm=marcas(activo);
+      if(mm[z.n]){ if(!confirm("¿Desmarcar el bulto "+z.n+"?")) return; delete mm[z.n]; }
+      else { if(!confirm("¿Marcar a mano el bulto "+z.n+" sin escanear?")) return; mm[z.n]=Date.now(); }
+      guardarMarcas(activo,mm); pintarReparto();
+    });
+    ul.appendChild(li);
+  });
+}
+function aviso(t,tipo){
+  var e=$("scanMsg"); e.textContent=t;
+  e.style.color = tipo==="ko" ? "var(--warn)" : tipo==="ok" ? "var(--ok)" : "var(--muted)";
+  var v=$("visor"); v.classList.remove("flash-ok","flash-ko");
+  if(tipo){ v.classList.add(tipo==="ok"?"flash-ok":"flash-ko"); setTimeout(function(){ v.classList.remove("flash-ok","flash-ko"); },500); }
+}
+var actx=null;
+function sonido(f,ms){
+  try{
+    actx=actx||new (window.AudioContext||window.webkitAudioContext)();
+    var o=actx.createOscillator(), g=actx.createGain();
+    o.frequency.value=f; g.gain.value=.12; o.connect(g); g.connect(actx.destination);
+    o.start(); o.stop(actx.currentTime+ms/1000);
+  }catch(e){}
+}
+function vibrar(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+
+var ultimoCod="", ultimoT=0;
+function procesar(code){
+  var ahora=Date.now();
+  if(code===ultimoCod && ahora-ultimoT<2500) return;
+  ultimoCod=code; ultimoT=ahora;
+
+  if(code.indexOf("WSM1")===0){
+    var p=decodificarMaestro(code);
+    if(!p){ aviso("Código de pedido dañado. Prueba otra vez.","ko"); sonido(220,250); return; }
+    var nuevo=!ruta[p.id];
+    ruta[p.id]=p; lsSet("wsr_pedidos",ruta); activo=p.id; ultimoN=null;
+    aviso((nuevo?"Pedido "+p.id+" cargado: ":"Pedido "+p.id+" ya estaba cargado: ")+p.piezas.length+" bultos. Ahora escanea las etiquetas.","ok");
+    sonido(660,90); setTimeout(function(){sonido(990,120);},110); vibrar(80);
+    pintarReparto(); return;
+  }
+  var f=code.split("|");
+  if(f.length!==3 || f[0]!=="WS"){ aviso("Este código no es de Wood Store.","ko"); sonido(220,250); return; }
+  var pid=f[1], n=parseInt(f[2],10);
+  if(!ruta[pid]){ aviso("El bulto es del pedido "+pid+", que no está cargado. Escanea primero su hoja de carga.","ko"); sonido(220,350); vibrar([100,60,100]); return; }
+  if(pid!==activo){ aviso("¡Cuidado! Este bulto es del pedido "+pid+", no del "+activo+".","ko"); sonido(220,350); vibrar([100,60,100]); return; }
+  var p2=ruta[pid], z=p2.piezas.filter(function(x){return x.n===n;})[0];
+  if(!z){ aviso("El bulto "+n+" no existe en el pedido "+pid+".","ko"); sonido(220,250); return; }
+  var m=marcas(pid);
+  if(m[n]){ aviso("Bulto "+n+" ya estaba marcado.",""); sonido(440,80); return; }
+  m[n]=ahora; guardarMarcas(pid,m); ultimoN=n;
+  var quedan=p2.piezas.filter(function(x){return !m[x.n];}).length;
+  if(quedan===0){
+    aviso("Bulto "+n+" OK. ¡Carga completa!","ok");
+    sonido(660,100); setTimeout(function(){sonido(880,100);},120); setTimeout(function(){sonido(1175,220);},240); vibrar([80,50,80,50,200]);
+  } else {
+    aviso("Bulto "+n+" OK: "+z.desc+". Quedan "+quedan+".","ok");
+    sonido(990,90); vibrar(50);
+  }
+  pintarReparto();
+}
+
+/* cámara continua */
+var stream=null, detector=null, bucleOn=false, wake=null;
+async function iniciarCam(){
+  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
+    aviso("Este navegador no permite usar la cámara. Abre la página en Safari o Chrome.","ko"); return;
+  }
+  try{
+    stream=await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}}});
+  }catch(e){
+    var n=e&&e.name;
+    aviso(n==="NotAllowedError" ? "Sin permiso de cámara. Actívalo en los ajustes del navegador para esta web." : "No se pudo abrir la cámara ("+(n||"error")+").","ko");
+    return;
+  }
+  try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){}
+  var v=$("video"); v.srcObject=stream; await v.play();
+  $("visor").classList.add("on"); $("btnCam").textContent="Parar"; $("btnCam").classList.add("sec");
+  aviso(activo?"Apunta a la etiqueta de cada bulto.":"Apunta al código grande de la hoja de carga.","");
+  if("BarcodeDetector" in window){ try{ detector=new BarcodeDetector({formats:["qr_code"]}); }catch(e){ detector=null; } }
+  try{ if(navigator.wakeLock) wake=await navigator.wakeLock.request("screen"); }catch(e){}
+  bucleOn=true; bucle();
+}
+function pararCam(){
+  bucleOn=false;
+  if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream=null; }
+  $("video").srcObject=null; $("visor").classList.remove("on");
+  $("btnCam").textContent="Escanear"; $("btnCam").classList.remove("sec");
+  try{ if(wake){ wake.release(); wake=null; } }catch(e){}
+}
+var cv=document.createElement("canvas"), cx=cv.getContext("2d",{willReadFrequently:true});
+async function bucle(){
+  if(!bucleOn) return;
+  var v=$("video");
+  if(v.readyState>=2 && v.videoWidth){
+    try{
+      if(detector){
+        var r=await detector.detect(v);
+        if(r&&r.length) procesar(r[0].rawValue);
+      } else if(window.jsQR){
+        var w=Math.min(720,v.videoWidth), h=Math.round(v.videoHeight*w/v.videoWidth);
+        cv.width=w; cv.height=h; cx.drawImage(v,0,0,w,h);
+        var q=jsQR(cx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"dontInvert"});
+        if(q&&q.data) procesar(q.data);
+      }
+    }catch(e){}
+  }
+  setTimeout(bucle, 120);
+}
+$("btnCam").addEventListener("click",function(){ stream?pararCam():iniciarCam(); });
+document.addEventListener("visibilitychange",function(){ if(document.hidden) pararCam(); });
+
+/* acciones reparto */
+$("btnResumen").addEventListener("click",function(){
+  var p=ruta[activo]; if(!p) return;
+  var m=marcas(activo), falt=p.piezas.filter(function(z){return !m[z.n];});
+  var hora=new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
+  var t="Pedido "+p.id+(p.cliente?" ("+p.cliente+")":"")+"\n";
+  t+= falt.length ? "Carga INCOMPLETA: "+(p.piezas.length-falt.length)+"/"+p.piezas.length+" bultos a las "+hora+"\nFaltan:\n"+
+      falt.map(function(z){return "- Bulto "+z.n+": "+z.desc;}).join("\n")
+    : "Carga completa: "+p.piezas.length+"/"+p.piezas.length+" bultos a las "+hora;
+  if(navigator.share){ navigator.share({text:t}).catch(function(){}); }
+  else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
+});
+$("btnReiniciar").addEventListener("click",function(){
+  if(!activo||!confirm("¿Desmarcar todos los bultos del pedido "+activo+"?")) return;
+  guardarMarcas(activo,{}); ultimoN=null; pintarReparto();
+});
+$("btnQuitar").addEventListener("click",function(){
+  if(!activo||!confirm("¿Quitar el pedido "+activo+" de este móvil?")) return;
+  try{ localStorage.removeItem("wsr_m_"+activo); }catch(e){}
+  delete ruta[activo]; lsSet("wsr_pedidos",ruta); activo=null; pintarReparto(); aviso("","");
+});
+
+/* arranque */
+pintarReparto();
+pintarRecientes();
+if(window.matchMedia("(min-width: 900px)").matches && !Object.keys(ruta).length){
+  document.querySelector('.tabs button[data-tab="almacen"]').click();
+}
+</script>
+</body>
+</html>
