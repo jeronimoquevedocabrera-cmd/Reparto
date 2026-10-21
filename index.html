@@ -15,6 +15,7 @@
   --bg:#eef0ec; --surface:#ffffff; --surface-2:#e4e8e2; --line:#cfd6cd;
   --ink:#17201c; --muted:#5d6a63; --pine:#1d3b33; --pine-2:#2c5a4d;
   --ok:#1e7a46; --ok-bg:#d9efe1; --warn:#b4401a; --warn-bg:#f7e0d6; --hi:#f2c230;
+  --fab:#6b4e16; --fab-bg:#f3e8cf;
   box-sizing:border-box;
   padding-top: env(safe-area-inset-top, 0px);
   padding-bottom: env(safe-area-inset-bottom, 0px);
@@ -25,6 +26,7 @@
     --bg:#101513; --surface:#18201c; --surface-2:#212b26; --line:#2e3a34;
     --ink:#e8eee9; --muted:#9aa8a0; --pine:#0c1a16; --pine-2:#3f7d6b;
     --ok:#5fd18e; --ok-bg:#183326; --warn:#f2895f; --warn-bg:#3a1f15; --hi:#f2c230;
+    --fab:#e8c27a; --fab-bg:#2f2614;
   }
 }
 *,*::before,*::after{box-sizing:border-box}
@@ -34,18 +36,19 @@ body{margin:0;background:var(--bg);color:var(--ink);
   font-size:16px;line-height:1.45;-webkit-tap-highlight-color:transparent}
 body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);background:var(--pine);z-index:20}
 header{position:sticky;top:env(safe-area-inset-top,0px);z-index:10;background:var(--pine);color:#fff}
-.bar{max-width:760px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 14px}
-.marca{font-weight:700;letter-spacing:.01em;flex:1}
+.bar{max-width:820px;margin:0 auto;display:flex;align-items:center;gap:12px;padding:10px 14px;flex-wrap:wrap}
+.marca{font-weight:700;letter-spacing:.01em;flex:1;min-width:120px}
 .marca small{display:block;font-weight:400;opacity:.7;font-size:.75rem}
 .tabs{display:flex;background:rgba(255,255,255,.1);border-radius:10px;padding:3px}
-.tabs button{background:none;border:0;color:#fff;opacity:.75;font:inherit;font-size:.9rem;
-  padding:8px 14px;border-radius:8px;cursor:pointer}
+.tabs button{background:none;border:0;color:#fff;opacity:.75;font:inherit;font-size:.88rem;
+  padding:8px 12px;border-radius:8px;cursor:pointer}
 .tabs button.on{background:#fff;color:var(--pine);opacity:1;font-weight:600}
-main{max-width:760px;margin:0 auto;padding:14px 14px 80px}
+main{max-width:820px;margin:0 auto;padding:14px 14px 80px}
 section{display:none}
 section.on{display:block}
 .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;margin-bottom:12px}
 h2{font-size:1rem;margin:0 0 6px}
+h3{font-size:.85rem;margin:16px 0 4px;text-transform:uppercase;letter-spacing:.04em;color:var(--muted)}
 label{display:block;font-size:.8rem;color:var(--muted);margin:12px 0 4px}
 input,textarea,select{width:100%;padding:11px;border:1px solid var(--line);border-radius:9px;
   background:var(--surface-2);color:var(--ink);font:inherit}
@@ -54,12 +57,17 @@ textarea{min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:.82
   color:#fff;border:0;border-radius:10px;padding:13px 18px;font:inherit;font-weight:600;cursor:pointer;min-height:48px}
 .btn.sec{background:var(--surface-2);color:var(--ink);border:1px solid var(--line)}
 .btn.big{width:100%;font-size:1.1rem;min-height:60px}
+.btn.sm{min-height:38px;padding:7px 12px;font-size:.85rem}
 .btn:focus-visible,.tabs button:focus-visible,select:focus-visible,input:focus-visible{outline:3px solid var(--hi);outline-offset:2px}
 .row{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px}
-.row>*{flex:1 1 140px}
+.row>*{flex:1 1 150px}
 .hint{font-size:.85rem;color:var(--muted);margin:6px 0 0}
+.aviso{font-size:.88rem;border-radius:9px;padding:10px 12px;margin-top:10px;background:var(--warn-bg);color:var(--warn)}
 .empty{text-align:center;padding:28px 18px;color:var(--muted)}
 .empty b{display:block;color:var(--ink);font-size:1.05rem;margin-bottom:4px}
+.tag{display:inline-block;font-size:.7rem;font-weight:700;padding:2px 7px;border-radius:99px;vertical-align:1px;margin-right:6px;
+  background:var(--surface-2);color:var(--muted)}
+.tag.fab{background:var(--fab-bg);color:var(--fab)}
 
 /* escáner */
 .visor{position:relative;border-radius:14px;overflow:hidden;background:#000;margin-top:12px;display:none}
@@ -72,17 +80,18 @@ textarea{min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:.82
 #scanMsg{margin:10px 2px 0;font-weight:600;min-height:1.4em}
 
 /* marcador */
-.marcador{border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px}
+.marcador{border-radius:14px;padding:16px 18px;margin-bottom:12px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .marcador.pend{background:var(--warn-bg);color:var(--warn)}
 .marcador.ok{background:var(--ok-bg);color:var(--ok)}
 .marcador .num{font-size:3.2rem;font-weight:800;line-height:1;font-variant-numeric:tabular-nums;letter-spacing:-.02em}
 .marcador .num span{font-size:1.6rem;opacity:.7;font-weight:700}
 .marcador .txt{font-weight:600;font-size:1rem}
+.marcador .txt small{display:block;font-weight:500;opacity:.85;font-size:.85rem}
 .chips{display:flex;gap:6px;overflow-x:auto;margin-bottom:12px}
 .chip{flex:0 0 auto;border:1px solid var(--line);background:var(--surface);color:var(--ink);border-radius:99px;
   padding:7px 12px;font:inherit;font-size:.85rem;cursor:pointer}
 .chip.on{background:var(--ink);color:var(--surface);border-color:var(--ink)}
-ul.lista{list-style:none;padding:0;margin:10px 0 0}
+ul.lista{list-style:none;padding:0;margin:4px 0 0}
 ul.lista li{display:flex;align-items:center;gap:12px;padding:10px 0;border-bottom:1px solid var(--line);cursor:pointer}
 ul.lista li:last-child{border-bottom:0}
 .tick{width:26px;height:26px;border-radius:7px;border:2px solid var(--line);flex:0 0 auto;display:grid;place-items:center;font-weight:700}
@@ -94,34 +103,41 @@ li.recien{animation:pulso .9s ease-out}
 .d{font-size:.95rem}
 .sub{font-size:.78rem;color:var(--muted)}
 
-/* almacén */
+/* tablas de revisión */
 .lin{display:flex;gap:10px;align-items:center;padding:9px 0;border-bottom:1px solid var(--line)}
 .lin>div{flex:1 1 auto;min-width:0}
-.lin select{width:auto;flex:0 0 auto;font-size:.82rem;padding:7px 8px}
+.lin select{width:auto;flex:0 0 auto;font-size:.82rem;padding:7px 8px;max-width:48%}
 .lin.off{opacity:.45}
+.lin.fab .d::before{content:"FABRICADO";font-size:.66rem;font-weight:700;padding:2px 6px;border-radius:99px;margin-right:6px;
+  background:var(--fab-bg);color:var(--fab);vertical-align:1px}
 .total{display:flex;justify-content:space-between;margin-top:12px;padding-top:10px;border-top:2px solid var(--line);font-weight:700}
+.total+.total{margin-top:4px;padding-top:0;border-top:0;font-weight:600;color:var(--muted)}
 .maestro{display:flex;gap:16px;align-items:center;flex-wrap:wrap}
 .maestro .qr{width:220px;max-width:100%;background:#fff;padding:10px;border-radius:10px}
 .maestro .qr svg{width:100%;height:auto;display:block}
 .ped{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
 .ped:last-child{border-bottom:0}
+.ped>div:first-child{min-width:0}
 .ped .acc{display:flex;gap:6px;flex:0 0 auto}
-.ped .acc .btn{min-height:40px;padding:8px 12px;font-size:.85rem}
+.ordenes-cargadas .ped{padding:6px 0}
 
 /* impresión */
 #hoja{display:none}
 @media print{
-  @page{size:A4;margin:8mm}
   body{background:#fff;color:#000;padding:0}
   body::before,header,main{display:none !important}
   #hoja{display:block !important}
 }
-.cab{display:flex;gap:6mm;align-items:center;border:1.5px solid #000;border-radius:3mm;padding:4mm;margin-bottom:5mm;break-inside:avoid}
+.cab{display:flex;gap:6mm;align-items:center;border:1.5px solid #000;border-radius:3mm;padding:4mm;margin-bottom:5mm;break-inside:avoid;color:#000}
 .cab .qrm{width:72mm;height:72mm;flex:0 0 auto}
 .cab .qrm svg{width:100%;height:100%;display:block}
 .cab h1{font-size:18pt;margin:0 0 2mm}
 .cab p{margin:0 0 1.5mm;font-size:10pt}
-.cab .aviso{margin-top:3mm;font-weight:700;font-size:10pt}
+.cab .av{margin-top:3mm;font-weight:700;font-size:10pt}
+table.resumen{width:100%;border-collapse:collapse;font-size:8.5pt;color:#000}
+table.resumen th,table.resumen td{border-bottom:.3mm solid #bbb;padding:1.2mm 1.5mm;text-align:left;vertical-align:top}
+table.resumen th{border-bottom:.5mm solid #000}
+table.resumen td.c{width:7mm;text-align:center}
 .grid{display:grid;grid-template-columns:repeat(2,1fr);gap:3mm}
 .et{border:1px dashed #999;border-radius:2mm;padding:2.5mm;display:flex;gap:3mm;align-items:center;background:#fff;color:#000;break-inside:avoid}
 .et .qr{width:27mm;height:27mm;flex:0 0 auto}
@@ -131,7 +147,11 @@ li.recien{animation:pulso .9s ease-out}
 .et .b{font-weight:700}
 .et .ds{overflow:hidden;max-height:3.8em}
 .et .cl{font-size:7.5pt;color:#444}
+/* etiquetas en rollo: una por página */
+.rollo .et{border:0;border-radius:0;padding:1.5mm;width:100%;height:100%;page-break-after:always;break-after:page;overflow:hidden}
+.rollo .et:last-child{page-break-after:auto;break-after:auto}
 </style>
+<style id="estiloPagina"></style>
 </head>
 <body>
 <header>
@@ -139,6 +159,7 @@ li.recien{animation:pulso .9s ease-out}
     <div class="marca">Wood Store<small>Control de carga</small></div>
     <div class="tabs" role="tablist">
       <button data-tab="reparto" class="on">Reparto</button>
+      <button data-tab="fabricacion">Fabricación</button>
       <button data-tab="almacen">Almacén</button>
     </div>
   </div>
@@ -153,7 +174,7 @@ li.recien{animation:pulso .9s ease-out}
 
   <div id="sinPedido" class="card empty">
     <b>Ningún pedido cargado</b>
-    Pulsa «Escanear» y apunta al código grande de la hoja de carga. Después ve pasando las etiquetas de cada bulto.
+    Pulsa «Escanear» y apunta al código grande de la hoja de carga. Después ve pasando las etiquetas de cada bulto y de cada pieza fabricada.
   </div>
 
   <div id="conPedido" style="display:none">
@@ -162,7 +183,7 @@ li.recien{animation:pulso .9s ease-out}
     <div class="card">
       <h2 id="rTitulo"></h2>
       <p class="hint" id="rCliente"></p>
-      <ul class="lista" id="rLista"></ul>
+      <div id="rListas"></div>
     </div>
     <div class="row">
       <button class="btn" id="btnResumen">Enviar resumen</button>
@@ -172,13 +193,49 @@ li.recien{animation:pulso .9s ease-out}
   </div>
 </section>
 
+<!-- ================= FABRICACIÓN ================= -->
+<section id="fabricacion">
+  <div class="card">
+    <h2>Etiquetas de piezas fabricadas</h2>
+    <label for="fOrden">Orden de máquinas (PDF)</label>
+    <input type="file" id="fOrden" accept="application/pdf">
+    <p class="hint" id="msgOrden">Se lee el pedido, el material y cada pieza con sus medidas. Sale una etiqueta por pieza.</p>
+  </div>
+
+  <div class="card" id="ordenPanel" style="display:none">
+    <h2 id="oTitulo"></h2>
+    <p class="hint" id="oSub"></p>
+    <div id="oLineas"></div>
+    <div class="total"><span>Etiquetas</span><span id="oTot">0</span></div>
+    <div class="maestro" style="margin-top:14px">
+      <div class="qr" id="oQr"></div>
+      <p class="hint" style="flex:1 1 200px;margin:0">QR maestro de fabricación: carga en el móvil todas las piezas de esta orden para comprobarlas. Sale también impreso en la hoja de etiquetas.</p>
+    </div>
+    <label for="oFormato">Formato de impresión</label>
+    <select id="oFormato" class="formato"></select>
+    <div class="row">
+      <button class="btn" id="btnOrdenImprimir">Imprimir etiquetas</button>
+      <button class="btn sec" id="btnOrdenCerrar">Cerrar</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Órdenes recientes</h2>
+    <div id="ordenesRecientes"><p class="hint">Todavía no hay órdenes en este equipo.</p></div>
+  </div>
+</section>
+
 <!-- ================= ALMACÉN ================= -->
 <section id="almacen">
   <div class="card">
     <h2>Nueva hoja de carga</h2>
-    <label for="fPdf">Hoja de pedido en PDF</label>
+    <label for="fPdf">1. Hoja de pedido (PDF)</label>
     <input type="file" id="fPdf" accept="application/pdf">
     <p class="hint" id="msgPdf">Se leen el pedido, el cliente, la dirección y todas las líneas.</p>
+    <label for="fOrdenA">2. Órdenes de máquinas de este pedido (si hay piezas fabricadas)</label>
+    <input type="file" id="fOrdenA" accept="application/pdf" multiple>
+    <p class="hint" id="msgOrdenA">Puedes subir varias. Las piezas fabricadas no se etiquetan aquí: ya llevan su etiqueta de fabricación.</p>
+    <div class="ordenes-cargadas" id="ordenesDelPedido"></div>
     <details style="margin-top:12px">
       <summary class="hint" style="cursor:pointer">o pegar el texto del pedido</summary>
       <textarea id="fTexto" style="margin-top:8px" placeholder="9437 MODULO ALTO 70X60X33 BLANCO 1,00 Unidad 33,20 33,20"></textarea>
@@ -194,10 +251,12 @@ li.recien{animation:pulso .9s ease-out}
     </div>
     <label for="fCli">Cliente</label><input id="fCli">
     <label for="fDir">Dirección</label><input id="fDir">
-    <label>Cómo se etiqueta cada línea</label>
-    <p class="hint">Una por unidad para puertas y módulos, una sola para un lote de herrajes, ninguna para mano de obra.</p>
+    <label>Cómo se trata cada línea del pedido</label>
+    <p class="hint">Una etiqueta por unidad (módulos), una para el lote (herrajes), fabricado (va en la orden de máquinas) o fuera del reparto (mano de obra).</p>
     <div id="lineas"></div>
-    <div class="total"><span>Etiquetas</span><span id="totEt">0</span></div>
+    <div id="avisoFab"></div>
+    <div class="total"><span>Bultos de almacén (etiquetas a imprimir)</span><span id="totEt">0</span></div>
+    <div class="total"><span>Piezas fabricadas (ya etiquetadas)</span><span id="totFab">0</span></div>
     <div class="row">
       <button class="btn" id="btnGenerar">Crear hoja de carga</button>
       <button class="btn sec" id="btnDescartar">Descartar</button>
@@ -209,9 +268,12 @@ li.recien{animation:pulso .9s ease-out}
     <h2 id="mTitulo"></h2>
     <div class="maestro">
       <div class="qr" id="mQr"></div>
-      <div style="flex:1 1 200px">
-        <p class="hint" style="margin-top:0">Este es el código del pedido completo. Va impreso arriba de la hoja; el repartidor también puede escanearlo directamente desde esta pantalla.</p>
-        <div class="row"><button class="btn" id="btnImprimir">Imprimir hoja y etiquetas</button></div>
+      <div style="flex:1 1 220px">
+        <p class="hint" style="margin-top:0">Código del pedido completo. El repartidor puede escanearlo desde esta pantalla o desde la hoja de carga impresa.</p>
+        <div class="row"><button class="btn" id="btnImprimirHoja">Imprimir hoja de carga (A4)</button></div>
+        <label for="mFormato">Formato de las etiquetas de almacén</label>
+        <select id="mFormato" class="formato"></select>
+        <div class="row"><button class="btn sec" id="btnImprimirEt">Imprimir etiquetas de almacén</button></div>
       </div>
     </div>
   </div>
@@ -230,12 +292,15 @@ li.recien{animation:pulso .9s ease-out}
 /* ============ utilidades ============ */
 function $(id){ return document.getElementById(id); }
 function txt(id,t){ var e=$(id); if(e) e.textContent=t; }
+function el(tag,cls,text){ var e=document.createElement(tag); if(cls) e.className=cls; if(text!=null) e.textContent=text; return e; }
 function lsGet(k,f){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):f; }catch(e){ return f; } }
 function lsSet(k,v){ try{ localStorage.setItem(k,JSON.stringify(v)); }catch(e){} }
 function limpia(s){
   return String(s||"").normalize("NFD").replace(/[\u0300-\u036f]/g,"")
     .replace(/[^\x20-\x7E]/g,"").replace(/[;|]/g," ").replace(/\s+/g," ").trim();
 }
+function num(s){ return parseFloat(String(s).replace(/\./g,"").replace(",","."))||0; }
+function cantTxt(c){ return String(c).replace(".",","); }
 document.querySelectorAll(".tabs button").forEach(function(b){
   b.addEventListener("click",function(){
     document.querySelectorAll(".tabs button").forEach(function(x){ x.classList.toggle("on",x===b); });
@@ -244,105 +309,25 @@ document.querySelectorAll(".tabs button").forEach(function(b){
   });
 });
 
-/* ============ parser hoja de pedido ============ */
-var RE_ITEM=/^(\d{3,6})\s+(.+?)\s+(\d{1,4}(?:[.,]\d{1,2})?)\s+(?:Unidad(?:es)?|Uds?\.?|Ud|M2|ML)\s+([\d.,]+)\s+([\d.,]+)\s*$/i;
-var RE_CAB=/(?:^|\s)([A-Z]\d{4,6})\s+(\d{2}\/\d{2}\/\d{4})\b/;
-var RE_CLI=/^\d{1,3}(?:\.\d{3})*\s+([A-ZÁÉÍÓÚÑÜ][A-ZÁÉÍÓÚÑÜ .,\x27-]{3,})$/;
-var RE_CP=/^(\d{5})\s+([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s.\-]{2,})$/;
-var RE_CALLE=/^(C\/|CALLE|AVDA|AVENIDA|PASEO|PLAZA|URB|URBANIZACION|CAMINO|CTRA|CARRETERA|LUGAR|BARRIO|TRAVESIA)\b/i;
-var RE_FIN=/^(Bruto|Descuento|Base Imponible|I\.?\s?G\.?\s?I\.?\s?C|Términos|Terminos|Forma pago|Condiciones|Total)\b/i;
-var SERVICIO=/\b(COLOCACION|COLOCACIÓN|INSTALACION|INSTALACIÓN|MONTAJE|MANO DE OBRA|TRANSPORTE|PORTES|DESMONTAJE|MEDICION|MEDICIÓN)\b/i;
-var GRANDE=/\b(PUERTA|MODULO|MÓDULO|COLUMNA|COSTADO|ESQUINAL|ENCIMERA|COMPAC|TABLERO|FRENTE|REGLETA|ZOCALO|ZÓCALO|ESCURRIDOR|CAMPANA|GOLA|PANEL|BANCADA|ESTANTE|BALDA|LAVADERO|ALACENA|VITRINA|CAJONERA|REMATE)\b/i;
-var PEQUENO=/\b(LATERAL|ESCUADRA|TAPA|TAPON|TAPÓN|SOPORTE|KIT|BISAGRA|TORNILLO|TACO|COLGAD|BOLSA|PATAS?|FONDO|TRASERA|TIRADOR|GUIA|GUÍA|CLIP|ANGULO|ÁNGULO|CANTO|HERRAJE|PERFIL UNION)\b/i;
-function modoAuto(desc){
-  if(SERVICIO.test(desc)) return "x";
-  if(PEQUENO.test(desc)) return "b";
-  if(GRANDE.test(desc) || /\bMOD\.?\s/i.test(desc)) return "u";
-  return "b";
-}
-function parseHoja(lineas){
-  var r={pedido:"",fecha:"",cliente:"",direccion:"",lineas:[]};
-  var cab={}, enItems=false, fin=false, last=null, calle="", cp="", esperaCli=false;
-  for(var i=0;i<lineas.length;i++){
-    var l=String(lineas[i]).replace(/\s+/g," ").trim();
-    if(!l) continue;
-    if(RE_FIN.test(l)) fin=true;
-    if(fin) continue;
-    if(enItems && cab[l]) continue;
-    if(!enItems) cab[l]=true;
-    if(/^PEDIDO\s+FECHA/i.test(l)) continue;
-    if(RE_CALLE.test(l) && !calle){ calle=l; continue; }
-    if(RE_CP.test(l) && !cp){ cp=l; continue; }
-    var mcl=!enItems && !r.cliente && RE_CLI.exec(l);
-    if(mcl){ r.cliente=mcl[1].trim(); continue; }
-    var mc=RE_CAB.exec(l);
-    if(mc && !r.pedido && !RE_ITEM.test(l)){ r.pedido=mc[1]; r.fecha=mc[2]; esperaCli=!r.cliente; continue; }
-    if(esperaCli && !RE_ITEM.test(l)){ if(!r.cliente && !/^\d/.test(l)) r.cliente=l; esperaCli=false; continue; }
-    var m=RE_ITEM.exec(l);
-    if(m){
-      enItems=true; esperaCli=false;
-      last={code:m[1], desc:m[2].trim(), cant:parseFloat(String(m[3]).replace(",","."))||1};
-      last.modo=modoAuto(last.desc);
-      r.lineas.push(last); continue;
-    }
-    if(last && enItems && l.length<80 && !/\d{5}/.test(l) && !RE_CALLE.test(l)){
-      last.desc+=" "+l; last.modo=modoAuto(last.desc);
-    }
-  }
-  r.direccion=[calle,cp].filter(Boolean).join(", ");
-  return r;
-}
-function construirPiezas(lins){
-  var out=[], n=0;
-  lins.forEach(function(L){
-    if(L.modo==="x") return;
-    var k=(L.modo==="u")?Math.max(1,Math.round(L.cant)):1;
-    for(var c=1;c<=k;c++){
-      n++;
-      var d=L.desc;
-      if(k>1) d+=" ("+c+"/"+k+")"; else if(L.cant>1) d+=" ("+String(L.cant).replace(".",",")+" uds)";
-      out.push({n:n, code:L.code, desc:d});
-    }
-  });
-  return out;
-}
-
-/* ============ QR maestro: codificar / decodificar ============ */
-function codificarMaestro(p, largo){
-  var cab=["WSM1", limpia(p.id), limpia(p.fecha), limpia(p.cliente).slice(0,40), limpia(p.direccion).slice(0,60)];
-  var ls=p.lineas.filter(function(L){return L.modo!=="x";}).map(function(L){
-    return limpia(L.code)+";"+L.cant+";"+L.modo+";"+limpia(L.desc).slice(0,largo);
-  });
-  return cab.concat(ls).join("\n");
-}
-function decodificarMaestro(s){
-  var ls=String(s).split(/\r?\n/);
-  if(ls[0]!=="WSM1") return null;
-  var p={id:ls[1]||"", fecha:ls[2]||"", cliente:ls[3]||"", direccion:ls[4]||"", lineas:[]};
-  for(var i=5;i<ls.length;i++){
-    var f=ls[i].split(";"); if(f.length<4) continue;
-    p.lineas.push({code:f[0], cant:parseFloat(f[1])||1, modo:f[2], desc:f.slice(3).join(" ")});
-  }
-  p.piezas=construirPiezas(p.lineas);
-  return p.id && p.piezas.length ? p : null;
-}
-function svgQR(texto, ecc){
-  var q=qrcode(0, ecc||"M"); q.addData(texto); q.make();
-  return q.createSvgTag({cellSize:4, margin:0, scalable:true});
-}
-function svgMaestro(p){
-  var largos=[18,12,0];
-  for(var i=0;i<largos.length;i++){
-    try{ return svgQR(codificarMaestro(p,largos[i]),"L"); }catch(e){}
-  }
-  return "";
-}
-
-/* ============ ALMACÉN ============ */
-var borrador=null;
-var almacen=lsGet("wsa_pedidos",{});
-
+/* ============ lectura de PDF ============ */
 function pdfLib(){ return window.pdfjsLib || window["pdfjs-dist/build/pdf"] || null; }
+function agruparFilas(items){
+  var its=items.filter(function(it){
+      if(!it.str || !it.str.trim()) return false;
+      var t=it.transform;                       // descarta texto girado (márgenes verticales)
+      return Math.abs(t[1])<0.01 && Math.abs(t[2])<0.01;
+    })
+    .map(function(it){ return {x:it.transform[4], y:it.transform[5], s:it.str}; })
+    .sort(function(a,b){ return b.y-a.y || a.x-b.x; });
+  var filas=[], cur=null;
+  its.forEach(function(it){
+    if(cur && Math.abs(cur.y-it.y)<=3.5){ cur.items.push(it); cur.y=(cur.y*(cur.items.length-1)+it.y)/cur.items.length; }
+    else { cur={y:it.y, items:[it]}; filas.push(cur); }
+  });
+  return filas.map(function(f){
+    return f.items.sort(function(a,b){return a.x-b.x;}).map(function(o){return o.s;}).join(" ").replace(/\s+/g," ").trim();
+  }).filter(Boolean);
+}
 async function textoDePdf(file){
   var lib=pdfLib(); if(!lib) throw new Error("pdf.js no cargado");
   lib.GlobalWorkerOptions.workerSrc="https://cdn.jsdelivr.net/npm/pdfjs-dist@2.16.105/build/pdf.worker.min.js";
@@ -354,45 +339,416 @@ async function textoDePdf(file){
   }
   return out;
 }
-function agruparFilas(items){
-  var its=items.filter(function(it){ return it.str && it.str.trim(); })
-    .map(function(it){ return {x:it.transform[4], y:it.transform[5], s:it.str}; })
-    .sort(function(a,b){ return b.y-a.y || a.x-b.x; });
-  var filas=[], cur=null;
-  its.forEach(function(it){
-    if(cur && Math.abs(cur.y-it.y)<=2){ cur.items.push(it); }
-    else { cur={y:it.y, items:[it]}; filas.push(cur); }
+
+/* ============ parser HOJA DE PEDIDO ============ */
+var RE_ITEM=/^(\d{3,6})\s+(.+?)\s+(\d{1,4}(?:[.,]\d{1,2})?)\s+(?:Unidad(?:es)?|Uds?\.?|Ud|M2|ML)((?:\s+-?[\d.,]+%?){1,4})\s*$/i;
+var RE_CAB=/(?:^|\s)([A-Z]\d{4,6})\s+(\d{2}\/\d{2}\/\d{4})\b/;
+var RE_CLI=/^\d{1,3}(?:\.\d{3})*\s+([A-ZÁÉÍÓÚÑÜ][A-ZÁÉÍÓÚÑÜ .,\x27-]{3,})$/;
+var RE_NUMCLI=/^\d{1,3}(?:\.\d{3})*$/;
+var RE_CP=/^(\d{5})\s+([A-ZÁÉÍÓÚÑ][A-ZÁÉÍÓÚÑ\s.\-]{2,})$/;
+var RE_CALLE=/^(?:C\/|(?:CALLE|AVDA|AVENIDA|AV|PASEO|PLAZA|PZA|URB|URBANIZACION|CAMINO|CTRA|CARRETERA|LUGAR|BARRIO|TRAVESIA|C)\b\.?)/i;
+var RE_FIN=/^(Bruto|Descuento|Base Imponible|I\.?\s?G\.?\s?I\.?\s?C|Términos|Terminos|Forma pago|Condiciones|Total)\b/i;
+var RE_MEMBRETE=/^(COCINAS - ARMARIOS|TABLEROS - LISTONES|CORTE Y CANTEO|CODIGO\s+DESCRIPCION)/i;
+var SERVICIO=/\b(COLOCACION|COLOCACIÓN|INSTALACION|INSTALACIÓN|MONTAJE|MANO DE OBRA|TRANSPORTE|PORTES|DESMONTAJE|MEDICION|MEDICIÓN)\b/i;
+var PEQUENO=/\b(LATERAL|ESCUADRA|TAPA|TAPON|TAPÓN|SOPORTE|KIT|BISAGRA|TORNILLO|TACO|COLGAD|BOLSA|PATAS?|FONDO|TRASERA|TIRADOR|GUIA|GUÍA|CLIP|ANGULO|ÁNGULO|CANTO|HERRAJE|ENGANCHE|ESQUINERA|PERFIL UNION)\b/i;
+var GRANDE=/\b(PUERTA|MODULO|MÓDULO|COLUMNA|COSTADO|ESQUINAL|ENCIMERA|COMPAC|TABLERO|FRENTE|REGLETA|ZOCALO|ZÓCALO|ESCURRIDOR|CAMPANA|GOLA|PIEZA|LISTON|LISTÓN|PANEL|BANCADA|ESTANTE|BALDA|LAVADERO|ALACENA|VITRINA|CAJONERA|REMATE)\b/i;
+var FABRICABLE=/\b(PUERTA|FRENTE|COSTADO|REGLETA|PIEZA|PANEL|TAPA|BALDA|ESTANTE|REMATE|ZOCALO|ZÓCALO)\b/i;
+function modoAuto(desc){
+  if(SERVICIO.test(desc)) return "x";
+  if(PEQUENO.test(desc)) return "b";
+  if(GRANDE.test(desc) || /\bMOD\.?\s/i.test(desc)) return "u";
+  return "b";
+}
+function parseHoja(lineas){
+  var r={pedido:"",fecha:"",cliente:"",direccion:"",lineas:[]};
+  var cab={}, enItems=false, fin=false, last=null, calle="", cp="", esperaCli=false, trasNumCli=false, cliProv=false;
+  for(var i=0;i<lineas.length;i++){
+    var l=String(lineas[i]).replace(/\s+/g," ").trim();
+    if(!l) continue;
+    if(RE_FIN.test(l)) fin=true;
+    if(fin) continue;
+    if(enItems && cab[l]) continue;
+    if(!enItems) cab[l]=true;
+    if(/PEDIDO\s+FECHA|FECHA\s+ENTREGA/i.test(l)) continue;
+    if(RE_MEMBRETE.test(l)) continue;
+    if(!enItems && !RE_ITEM.test(l)){
+      var mp=!r.pedido && /(?:^|\s)([A-Z]\d{4,6})(?=\s|$)/.exec(l);
+      var mf=!r.fecha && /\b(\d{2}\/\d{2}\/\d{4})\b/.exec(l);
+      if(mp) r.pedido=mp[1];
+      if(mf) r.fecha=mf[1];
+      if(mp||mf){ if(mp) esperaCli=!r.cliente||cliProv; trasNumCli=false; continue; }
+    }
+    if(!enItems){
+      if(RE_CALLE.test(l) && !calle && !RE_ITEM.test(l)){ calle=l; continue; }
+      if(RE_CP.test(l) && !cp){ cp=l; continue; }
+      var mcl=!r.cliente && RE_CLI.exec(l);
+      if(mcl){ r.cliente=mcl[1].trim(); continue; }
+      if(RE_NUMCLI.test(l)){ trasNumCli=!r.cliente; continue; }
+      if(trasNumCli && /[A-ZÁÉÍÓÚÑ]{3}/.test(l) && !RE_CAB.test(l) && !/^\d/.test(l)){ r.cliente=l; cliProv=true; trasNumCli=false; continue; }
+    }
+    if(esperaCli && !RE_ITEM.test(l) && !RE_MEMBRETE.test(l)){ if((!r.cliente||cliProv) && !/^\d/.test(l) && /[A-ZÁÉÍÓÚÑ]{3}/.test(l)){ r.cliente=l; cliProv=false; } esperaCli=false; continue; }
+    var m=RE_ITEM.exec(l);
+    if(m){
+      enItems=true; esperaCli=false; trasNumCli=false;
+      last={code:m[1], desc:m[2].trim(), cant:num(m[3])||1};
+      last.modo=modoAuto(last.desc);
+      r.lineas.push(last); continue;
+    }
+    if(last && enItems && l.length<80 && !/\d{5}/.test(l) && !RE_CALLE.test(l) && /[A-Za-z]{3}/.test(l)){
+      last.desc+=" "+l; last.modo=modoAuto(last.desc);
+    }
+  }
+  r.direccion=[calle,cp].filter(Boolean).join(", ");
+  return r;
+}
+function construirPiezas(lins){
+  var out=[], n=0;
+  lins.forEach(function(L){
+    if(L.modo==="x" || L.modo==="f") return;
+    var k=(L.modo==="u")?Math.max(1,Math.round(L.cant)):1;
+    for(var c=1;c<=k;c++){
+      n++;
+      var d=L.desc;
+      if(k>1) d+=" ("+c+"/"+k+")"; else if(L.cant!==1) d+=" ("+cantTxt(L.cant)+" uds)";
+      out.push({key:"A"+n, n:n, code:L.code, desc:d, tipo:"A"});
+    }
   });
-  return filas.map(function(f){
-    return f.items.sort(function(a,b){return a.x-b.x;}).map(function(o){return o.s;}).join(" ").replace(/\s+/g," ").trim();
-  }).filter(Boolean);
+  return out;
+}
+
+/* ============ parser ORDEN DE MÁQUINAS ============ */
+var RE_ORD=/^(?:(\d{1,3})\s+)?(\d{3,6})\s+(.+?)\s+(\d{2,5}(?:[.,]\d+)?)\s+(\d{2,5}(?:[.,]\d+)?)\s+(\d{1,4})\s*$/;
+function parseOrden(filas){
+  function pasada(conSecciones){
+    var o={pedido:"",material:"",origen:"",lineas:[]}, dentro=!conSecciones, pend=null, idx=0;
+    filas.forEach(function(raw){
+      var l=String(raw).replace(/\s+/g," ").trim(), m;
+      if(!o.pedido && /PEDIDO/i.test(l) && (m=/\b([A-Z]\d{4,6})\b/.exec(l))) o.pedido=m[1];
+      if(!o.material && (m=/material\s*:\s*(.+)$/i.exec(l))) o.material=m[1].trim();
+      if(!o.origen && (m=/^DE\s*:\s*(\S+)/i.exec(l))) o.origen=m[1];
+      if(/^Entrada de producto/i.test(l)){ dentro=true; return; }
+      if(/^Salida de producto/i.test(l)){ dentro=false; return; }
+      if(!dentro) return;
+      if(/^\d{1,3}$/.test(l)){ pend=parseInt(l,10); return; }
+      if((m=RE_ORD.exec(l))){
+        idx++;
+        o.lineas.push({linea: m[1]?parseInt(m[1],10):(pend||idx), code:m[2], desc:m[3].trim(),
+          largo:Math.round(num(m[4])), ancho:Math.round(num(m[5])), cant:parseInt(m[6],10)||1});
+        pend=null;
+      }
+    });
+    if(!o.pedido){ filas.some(function(l){ var mm=/\b([A-Z]\d{5})\b/.exec(l); if(mm){ o.pedido=mm[1]; return true; } return false; }); }
+    return o;
+  }
+  var o=pasada(true);
+  if(!o.lineas.length) o=pasada(false);
+  o.mat=(limpia(o.material).replace(/\s+/g,"").toUpperCase().slice(0,10))||"MAQ";
+  o.id=o.pedido+"|"+o.mat;
+  return o;
+}
+function piezasDeOrden(o){
+  var out=[];
+  o.lineas.forEach(function(L){
+    for(var c=1;c<=L.cant;c++){
+      out.push({key:"F|"+o.mat+"|"+L.linea+"|"+c, tipo:"F", mat:o.mat, linea:L.linea, copia:c, cant:L.cant,
+        code:L.code, medidas:L.largo+"×"+L.ancho,
+        desc:L.desc+" "+L.largo+"×"+L.ancho+(L.cant>1?" ("+c+"/"+L.cant+")":"")});
+    }
+  });
+  return out;
+}
+
+/* ============ QR ============ */
+function svgQR(texto, ecc){
+  var q=qrcode(0, ecc||"M"); q.addData(texto); q.make();
+  return q.createSvgTag({cellSize:4, margin:0, scalable:true});
+}
+function qrFab(pedido, pz){ return "WSF|"+limpia(pedido)+"|"+pz.mat+"|"+pz.linea+"|"+pz.copia; }
+function qrAlm(pedido, pz){ return "WS|"+limpia(pedido)+"|"+pz.n; }
+
+/* Maestro v2:
+   WSM2 / pedido / fecha / cliente / direccion
+   A;code;cant;modo;desc            (líneas de almacén)
+   F;mat;linea;cant;largo;ancho;desc (piezas de orden de máquinas) */
+function codificarMaestro(p, largo){
+  var cab=["WSM2", limpia(p.id), limpia(p.fecha), limpia(p.cliente).slice(0,40), limpia(p.direccion).slice(0,60)];
+  var a=p.lineas.filter(function(L){return L.modo==="u"||L.modo==="b";}).map(function(L){
+    return "A;"+limpia(L.code)+";"+L.cant+";"+L.modo+";"+limpia(L.desc).slice(0,largo);
+  });
+  var f=[];
+  (p.ordenes||[]).forEach(function(o){
+    o.lineas.forEach(function(L){
+      f.push("F;"+o.mat+";"+L.linea+";"+L.cant+";"+L.largo+";"+L.ancho+";"+limpia(L.desc).slice(0,largo));
+    });
+  });
+  return cab.concat(a,f).join("\n");
+}
+function decodificarMaestro(s){
+  var ls=String(s).split(/\r?\n/);
+  if(ls[0]!=="WSM2" && ls[0]!=="WSM1") return null;
+  var p={id:ls[1]||"", fecha:ls[2]||"", cliente:ls[3]||"", direccion:ls[4]||"", lineas:[], ordenes:[]};
+  var ords={};
+  for(var i=5;i<ls.length;i++){
+    var f=ls[i].split(";");
+    if(ls[0]==="WSM1"){ if(f.length>=4) p.lineas.push({code:f[0],cant:parseFloat(f[1])||1,modo:f[2],desc:f.slice(3).join(" ")}); continue; }
+    if(f[0]==="A" && f.length>=5) p.lineas.push({code:f[1],cant:parseFloat(f[2])||1,modo:f[3],desc:f.slice(4).join(" ")});
+    if(f[0]==="F" && f.length>=7){
+      var mat=f[1];
+      if(!ords[mat]){ ords[mat]={mat:mat, lineas:[]}; p.ordenes.push(ords[mat]); }
+      ords[mat].lineas.push({linea:parseInt(f[2],10),cant:parseInt(f[3],10)||1,largo:f[4],ancho:f[5],code:"",desc:f.slice(6).join(" ")});
+    }
+  }
+  p.piezas=construirPiezas(p.lineas);
+  p.ordenes.forEach(function(o){ p.piezas=p.piezas.concat(piezasDeOrden(o)); });
+  return p.id && p.piezas.length ? p : null;
+}
+/* Maestro de orden de máquinas:
+   WSO1 / pedido / material / mat
+   linea;cant;largo;ancho;desc */
+function codificarOrden(o, largo){
+  var cab=["WSO1", limpia(o.pedido), limpia(o.material).slice(0,20), o.mat];
+  return cab.concat(o.lineas.map(function(L){
+    return L.linea+";"+L.cant+";"+L.largo+";"+L.ancho+";"+limpia(L.desc).slice(0,largo);
+  })).join("\n");
+}
+function decodificarOrden(s){
+  var ls=String(s).split(/\r?\n/);
+  if(ls[0]!=="WSO1" || !ls[1]) return null;
+  var o={pedido:ls[1], material:ls[2]||"", mat:ls[3]||"MAQ", lineas:[]};
+  for(var i=4;i<ls.length;i++){
+    var f=ls[i].split(";"); if(f.length<5) continue;
+    o.lineas.push({linea:parseInt(f[0],10), cant:parseInt(f[1],10)||1, largo:f[2], ancho:f[3], code:"", desc:f.slice(4).join(" ")});
+  }
+  return o.lineas.length ? o : null;
+}
+function svgOrden(o){
+  var largos=[14,8,0];
+  for(var i=0;i<largos.length;i++){
+    try{ return svgQR(codificarOrden(o,largos[i]),"L"); }catch(e){}
+  }
+  return "";
+}
+function svgMaestro(p){
+  var largos=[18,12,0];
+  for(var i=0;i<largos.length;i++){
+    try{ return svgQR(codificarMaestro(p,largos[i]),"L"); }catch(e){}
+  }
+  return "";
+}
+
+/* ============ impresión ============ */
+var FORMATOS=[
+  {id:"a4",   txt:"A4, folio adhesivo (2 por fila)"},
+  {id:"50x30",txt:"Rollo 50 × 30 mm", w:50, h:30},
+  {id:"60x40",txt:"Rollo 60 × 40 mm", w:60, h:40},
+  {id:"100x50",txt:"Rollo 100 × 50 mm", w:100, h:50}
+];
+var formatoGuardado=lsGet("ws_formato","a4");
+document.querySelectorAll("select.formato").forEach(function(s){
+  FORMATOS.forEach(function(f){ var o=el("option",null,f.txt); o.value=f.id; s.appendChild(o); });
+  s.value=formatoGuardado;
+  s.addEventListener("change",function(){
+    formatoGuardado=s.value; lsSet("ws_formato",s.value);
+    document.querySelectorAll("select.formato").forEach(function(x){ x.value=s.value; });
+  });
+});
+function etiquetaDom(qrTxt, titulo, linea1, linea2, linea3, fmt){
+  var et=el("div","et");
+  var q=el("div","qr"); q.innerHTML=svgQR(qrTxt,"M");
+  var t=el("div","t");
+  t.appendChild(el("div","p",titulo));
+  t.appendChild(el("div","b",linea1));
+  t.appendChild(el("div","ds",linea2));
+  if(linea3) t.appendChild(el("div","cl",linea3));
+  if(fmt && fmt.w){
+    var lado=Math.min(fmt.h-3, fmt.w*0.45);
+    q.style.width=lado+"mm"; q.style.height=lado+"mm";
+    var esc=Math.max(0.55, Math.min(1.2, fmt.h/40));
+    t.style.fontSize=(8*esc)+"pt";
+    t.firstChild.style.fontSize=(11*esc)+"pt";
+  }
+  et.appendChild(q); et.appendChild(t);
+  return et;
+}
+function imprimirEtiquetas(lista, fmtId, cab){
+  var fmt=FORMATOS.filter(function(f){return f.id===fmtId;})[0]||FORMATOS[0];
+  var h=$("hoja"); h.innerHTML="";
+  $("estiloPagina").textContent = fmt.w
+    ? "@media print{@page{size:"+fmt.w+"mm "+fmt.h+"mm;margin:0}}"
+    : "@media print{@page{size:A4;margin:8mm}}";
+  if(cab && !fmt.w){
+    var c=el("div","cab");
+    var q=el("div","qrm"); q.style.width=q.style.height="60mm"; q.innerHTML=cab.svg;
+    var info=el("div");
+    info.appendChild(el("h1",null,cab.titulo));
+    cab.lineas.forEach(function(x){ if(x) info.appendChild(el("p",null,x)); });
+    if(cab.aviso) info.appendChild(el("p","av",cab.aviso));
+    c.appendChild(q); c.appendChild(info); h.appendChild(c);
+  }
+  var cont=el("div", fmt.w ? "rollo" : "grid");
+  if(cab && fmt.w){
+    var m=el("div","et");
+    m.style.width=fmt.w+"mm"; m.style.height=fmt.h+"mm";
+    var lado=Math.min(fmt.h-2, fmt.w*0.62);
+    var mq=el("div","qr"); mq.style.width=lado+"mm"; mq.style.height=lado+"mm"; mq.innerHTML=cab.svg;
+    var mt=el("div","t"); mt.style.fontSize=Math.max(5.5, Math.min(9, fmt.h/4.5))+"pt";
+    mt.appendChild(el("div","p",cab.titulo)); mt.firstChild.style.fontSize=Math.max(7, Math.min(12, fmt.h/3.5))+"pt";
+    cab.lineas.forEach(function(x){ if(x) mt.appendChild(el("div",null,x)); });
+    m.appendChild(mq); m.appendChild(mt); cont.appendChild(m);
+  }
+  lista.forEach(function(e){
+    var d=etiquetaDom(e.qr,e.titulo,e.l1,e.l2,e.l3,fmt);
+    if(fmt.w){ d.style.width=fmt.w+"mm"; d.style.height=fmt.h+"mm"; }
+    cont.appendChild(d);
+  });
+  h.appendChild(cont);
+  setTimeout(function(){ window.print(); }, 50);
+}
+
+/* ============ FABRICACIÓN ============ */
+var ordenes=lsGet("wsf_ordenes",{});
+var ordenAbierta=null;
+async function leerOrdenes(files){
+  var res=[];
+  for(var i=0;i<files.length;i++){
+    try{
+      var o=parseOrden(await textoDePdf(files[i]));
+      if(o.lineas.length){ o.creado=Date.now(); ordenes[o.id]=o; res.push(o); }
+    }catch(e){ console.warn(e); }
+  }
+  lsSet("wsf_ordenes",ordenes);
+  pintarOrdenesRecientes();
+  return res;
+}
+$("fOrden").addEventListener("change",async function(ev){
+  var f=ev.target.files; if(!f||!f.length) return;
+  txt("msgOrden","Leyendo…");
+  var r=await leerOrdenes(f);
+  if(!r.length) txt("msgOrden","No se han encontrado piezas en ese PDF.");
+  else { txt("msgOrden","Orden leída."); abrirOrden(r[0].id); }
+  ev.target.value="";
+});
+function abrirOrden(id){
+  var o=ordenes[id]; if(!o) return;
+  ordenAbierta=id;
+  txt("oTitulo","Pedido "+o.pedido+(o.material?" · "+o.material:""));
+  txt("oSub", o.lineas.length+" líneas"+(o.origen?" · "+o.origen:""));
+  var c=$("oLineas"); c.innerHTML="";
+  o.lineas.forEach(function(L){
+    var r=el("div","lin");
+    var izq=el("div");
+    izq.appendChild(el("div","d",L.linea+". "+L.desc+"  "+L.largo+" × "+L.ancho+" mm"));
+    izq.appendChild(el("div","sub","Art. "+L.code+", "+L.cant+" pieza"+(L.cant>1?"s":"")));
+    r.appendChild(izq); c.appendChild(r);
+  });
+  txt("oTot", String(piezasDeOrden(o).length));
+  $("oQr").innerHTML=svgOrden(o);
+  $("ordenPanel").style.display="block";
+  $("ordenPanel").scrollIntoView({behavior:"smooth"});
+}
+$("btnOrdenCerrar").addEventListener("click",function(){ $("ordenPanel").style.display="none"; ordenAbierta=null; });
+$("btnOrdenImprimir").addEventListener("click",function(){
+  var o=ordenes[ordenAbierta]; if(!o) return;
+  var pz=piezasDeOrden(o), tot=pz.length;
+  imprimirEtiquetas(pz.map(function(z,i){
+    return {qr:qrFab(o.pedido,z), titulo:o.pedido,
+      l1:z.desc.replace(/ \(\d+\/\d+\)$/,""),
+      l2:z.medidas+" mm"+(z.cant>1?" · "+z.copia+"/"+z.cant:""),
+      l3:(o.material||"")+" · línea "+z.linea+" · "+(i+1)+"/"+tot};
+  }), $("oFormato").value, {
+    svg:svgOrden(o),
+    titulo:"Orden "+o.pedido+(o.material?" · "+o.material:""),
+    lineas:[tot+" piezas"+(o.origen?" · "+o.origen:""), "QR maestro de fabricación"],
+    aviso:"Escanea este código para cargar las piezas de esta orden en el móvil y comprobar que están todas."
+  });
+});
+function pintarOrdenesRecientes(){
+  var c=$("ordenesRecientes"), ids=Object.keys(ordenes).sort(function(a,b){return (ordenes[b].creado||0)-(ordenes[a].creado||0);});
+  if(!ids.length){ c.innerHTML='<p class="hint">Todavía no hay órdenes en este equipo.</p>'; return; }
+  c.innerHTML="";
+  ids.slice(0,30).forEach(function(id){
+    var o=ordenes[id], row=el("div","ped"), t=el("div");
+    t.appendChild(el("div","d",o.pedido+"  "+(o.material||"")));
+    t.appendChild(el("div","sub",piezasDeOrden(o).length+" piezas"));
+    var acc=el("div","acc");
+    var v=el("button","btn sec sm","Abrir"); v.addEventListener("click",function(){ abrirOrden(id); });
+    var d=el("button","btn sec sm","Borrar"); d.addEventListener("click",function(){
+      if(!confirm("¿Borrar la orden "+o.pedido+" "+(o.material||"")+" de este equipo?")) return;
+      delete ordenes[id]; lsSet("wsf_ordenes",ordenes); pintarOrdenesRecientes();
+      if(ordenAbierta===id) $("ordenPanel").style.display="none";
+    });
+    acc.appendChild(v); acc.appendChild(d); row.appendChild(t); row.appendChild(acc); c.appendChild(row);
+  });
+}
+
+/* ============ ALMACÉN ============ */
+var borrador=null;
+var almacen=lsGet("wsa_pedidos",{});
+
+function ordenesDe(pedido){
+  return Object.keys(ordenes).map(function(k){return ordenes[k];}).filter(function(o){ return o.pedido===pedido; });
+}
+function marcarFabricados(){
+  if(!borrador) return;
+  var ords=ordenesDe(limpia($("fPed").value)||borrador.pedido);
+  var mats=ords.map(function(o){ return (o.material||"").toUpperCase(); }).filter(Boolean);
+  borrador.lineas.forEach(function(L){
+    if(L.manual) return;
+    var base=modoAuto(L.desc);
+    var desc=L.desc.toUpperCase();
+    var esFab = ords.length && FABRICABLE.test(L.desc) && (mats.length ? mats.some(function(m){ return desc.indexOf(m)>=0; }) : true);
+    L.modo = esFab ? "f" : base;
+  });
 }
 function abrirRevision(r){
   borrador=r;
   $("fPed").value=r.pedido||""; $("fFec").value=r.fecha||"";
   $("fCli").value=r.cliente||""; $("fDir").value=r.direccion||"";
   $("revision").style.display="block"; $("panelMaestro").style.display="none";
-  pintarLineas();
+  marcarFabricados(); pintarLineas(); pintarOrdenesDelPedido();
   txt("msgPdf", r.lineas.length+" líneas leídas. Revísalas abajo.");
   $("revision").scrollIntoView({behavior:"smooth"});
+}
+function pintarOrdenesDelPedido(){
+  var c=$("ordenesDelPedido"); c.innerHTML="";
+  var ped=borrador?(limpia($("fPed").value)||borrador.pedido):"";
+  if(!ped) return;
+  var ords=ordenesDe(ped);
+  ords.forEach(function(o){
+    var r=el("div","ped"), t=el("div");
+    t.appendChild(el("div","d","Orden de máquinas "+(o.material||o.mat)));
+    t.appendChild(el("div","sub",piezasDeOrden(o).length+" piezas fabricadas"));
+    var q=el("button","btn sec sm","Quitar");
+    q.addEventListener("click",function(){ delete ordenes[o.id]; lsSet("wsf_ordenes",ordenes); marcarFabricados(); pintarLineas(); pintarOrdenesDelPedido(); pintarOrdenesRecientes(); });
+    r.appendChild(t); r.appendChild(q); c.appendChild(r);
+  });
+}
+function piezasFabDe(pedido){
+  var t=0; ordenesDe(pedido).forEach(function(o){ t+=piezasDeOrden(o).length; }); return t;
 }
 function pintarLineas(){
   var c=$("lineas"); c.innerHTML="";
   borrador.lineas.forEach(function(L){
-    var row=document.createElement("div"); row.className="lin"+(L.modo==="x"?" off":"");
-    var izq=document.createElement("div");
-    var d=document.createElement("div"); d.className="d"; d.textContent=L.desc;
-    var s=document.createElement("div"); s.className="sub"; s.textContent="Art. "+L.code+", "+String(L.cant).replace(".",",")+" ud"+(L.cant!==1?"s":"");
-    izq.appendChild(d); izq.appendChild(s);
-    var sel=document.createElement("select");
-    [["u","Una por unidad ("+Math.max(1,Math.round(L.cant))+")"],["b","Una para el lote"],["x","Sin etiqueta"]].forEach(function(o){
-      var op=document.createElement("option"); op.value=o[0]; op.textContent=o[1]; sel.appendChild(op);
+    var row=el("div","lin"+(L.modo==="x"?" off":"")+(L.modo==="f"?" fab":""));
+    var izq=el("div");
+    izq.appendChild(el("div","d",L.desc));
+    izq.appendChild(el("div","sub","Art. "+L.code+", "+cantTxt(L.cant)+" ud"+(L.cant!==1?"s":"")));
+    var sel=el("select");
+    [["u","Una por unidad ("+Math.max(1,Math.round(L.cant))+")"],["b","Una para el lote"],["f","Fabricado (orden de máquinas)"],["x","Fuera del reparto"]].forEach(function(o){
+      var op=el("option",null,o[1]); op.value=o[0]; sel.appendChild(op);
     });
     sel.value=L.modo;
-    sel.addEventListener("change",function(){ L.modo=sel.value; pintarLineas(); });
+    sel.addEventListener("change",function(){ L.modo=sel.value; L.manual=true; pintarLineas(); });
     row.appendChild(izq); row.appendChild(sel); c.appendChild(row);
   });
+  var ped=limpia($("fPed").value)||borrador.pedido;
+  var nFabLin=borrador.lineas.filter(function(L){return L.modo==="f";}).length;
+  var nFab=piezasFabDe(ped);
   txt("totEt", String(construirPiezas(borrador.lineas).length));
+  txt("totFab", String(nFab));
+  var av=$("avisoFab"); av.innerHTML="";
+  if(nFabLin && !nFab) av.appendChild(el("div","aviso","Hay "+nFabLin+" línea(s) marcadas como fabricadas pero no has subido ninguna orden de máquinas del pedido "+ped+". Súbela arriba o el repartidor no podrá comprobar esas piezas."));
+  if(!nFabLin && nFab) av.appendChild(el("div","aviso","Hay órdenes de máquinas cargadas pero ninguna línea marcada como fabricada. Revisa que no estés etiquetando dos veces las mismas puertas."));
 }
 $("fPdf").addEventListener("change",async function(ev){
   var f=ev.target.files&&ev.target.files[0]; if(!f) return;
@@ -404,96 +760,115 @@ $("fPdf").addEventListener("change",async function(ev){
   }catch(e){ console.warn(e); txt("msgPdf","No se ha podido abrir el PDF. Pega el texto a mano."); }
   ev.target.value="";
 });
+$("fOrdenA").addEventListener("change",async function(ev){
+  var f=ev.target.files; if(!f||!f.length) return;
+  txt("msgOrdenA","Leyendo…");
+  var r=await leerOrdenes(f);
+  var ped=borrador?(limpia($("fPed").value)||borrador.pedido):"";
+  var otras=r.filter(function(o){ return ped && o.pedido!==ped; });
+  txt("msgOrdenA", r.length ? (r.length+" orden(es) leída(s)."+(otras.length?" Ojo: "+otras.map(function(o){return o.pedido;}).join(", ")+" no coincide con el pedido "+ped+".":"")) : "No se han encontrado piezas en ese PDF.");
+  if(borrador){ marcarFabricados(); pintarLineas(); pintarOrdenesDelPedido(); }
+  ev.target.value="";
+});
+$("fPed").addEventListener("change",function(){ if(borrador){ marcarFabricados(); pintarLineas(); pintarOrdenesDelPedido(); } });
 $("btnTexto").addEventListener("click",function(){
   var r=parseHoja($("fTexto").value.split("\n"));
   if(!r.lineas.length) txt("msgPdf","No se ha encontrado ninguna línea de artículo en el texto.");
   else abrirRevision(r);
 });
 $("btnDescartar").addEventListener("click",function(){
-  borrador=null; $("revision").style.display="none"; txt("msgPdf","Se leen el pedido, el cliente, la dirección y todas las líneas.");
+  borrador=null; $("revision").style.display="none"; $("ordenesDelPedido").innerHTML="";
+  txt("msgPdf","Se leen el pedido, el cliente, la dirección y todas las líneas.");
 });
 $("btnGenerar").addEventListener("click",function(){
   if(!borrador) return;
   var id=limpia($("fPed").value);
   if(!id){ txt("msgGen","Falta el número de pedido."); return; }
-  var piezas=construirPiezas(borrador.lineas);
-  if(!piezas.length){ txt("msgGen","Ninguna línea tiene etiqueta."); return; }
+  var ords=ordenesDe(id).map(function(o){ return {mat:o.mat, material:o.material, lineas:o.lineas}; });
   var p={id:id, fecha:$("fFec").value.trim(), cliente:$("fCli").value.trim(), direccion:$("fDir").value.trim(),
-    lineas:borrador.lineas, creado:Date.now()};
+    lineas:borrador.lineas, ordenes:ords, creado:Date.now()};
+  if(!construirPiezas(p.lineas).length && !ords.length){ txt("msgGen","No hay nada que comprobar en el reparto."); return; }
+  if(!svgMaestro(p)){ txt("msgGen","El pedido es demasiado grande para un solo código. Avísame y lo divido."); return; }
   almacen[id]=p; lsSet("wsa_pedidos",almacen);
-  borrador=null; $("revision").style.display="none"; txt("msgGen","");
+  borrador=null; $("revision").style.display="none"; $("ordenesDelPedido").innerHTML=""; txt("msgGen","");
   mostrarMaestro(id); pintarRecientes();
 });
+function totalesPedido(p){
+  var a=construirPiezas(p.lineas).length, f=0;
+  (p.ordenes||[]).forEach(function(o){ f+=piezasDeOrden(o).length; });
+  return {a:a, f:f, t:a+f};
+}
 function mostrarMaestro(id){
   var p=almacen[id]; if(!p) return;
-  txt("mTitulo","Pedido "+p.id+" listo: "+construirPiezas(p.lineas).length+" etiquetas");
+  var t=totalesPedido(p);
+  txt("mTitulo","Pedido "+p.id+": "+t.a+" bultos de almacén + "+t.f+" piezas fabricadas");
   $("mQr").innerHTML=svgMaestro(p);
   $("panelMaestro").style.display="block";
   $("panelMaestro").dataset.id=id;
-  prepararHoja(p);
   $("panelMaestro").scrollIntoView({behavior:"smooth"});
 }
-$("btnImprimir").addEventListener("click",function(){
-  var id=$("panelMaestro").dataset.id; if(!id) return;
-  prepararHoja(almacen[id]); window.print();
+$("btnImprimirHoja").addEventListener("click",function(){
+  var p=almacen[$("panelMaestro").dataset.id]; if(!p) return;
+  var t=totalesPedido(p), h=$("hoja"); h.innerHTML="";
+  $("estiloPagina").textContent="@media print{@page{size:A4;margin:10mm}}";
+  var cab=el("div","cab");
+  var q=el("div","qrm"); q.innerHTML=svgMaestro(p);
+  var info=el("div");
+  info.appendChild(el("h1",null,"Hoja de carga · "+p.id));
+  [p.cliente, p.direccion, (p.fecha?"Entrega: "+p.fecha:""), t.a+" bultos de almacén + "+t.f+" piezas fabricadas = "+t.t].forEach(function(s){ if(s) info.appendChild(el("p",null,s)); });
+  info.appendChild(el("p","av","Repartidor: escanea primero este código y después la etiqueta de cada bulto y cada pieza."));
+  cab.appendChild(q); cab.appendChild(info); h.appendChild(cab);
+  var tb=el("table","resumen"), tr=el("tr");
+  ["","Bulto / pieza","Art.","Origen"].forEach(function(s){ tr.appendChild(el("th",null,s)); });
+  tb.appendChild(tr);
+  construirPiezas(p.lineas).forEach(function(z){
+    var r=el("tr"); r.appendChild(el("td","c","☐")); r.appendChild(el("td",null,z.n+". "+z.desc)); r.appendChild(el("td",null,z.code)); r.appendChild(el("td",null,"Almacén")); tb.appendChild(r);
+  });
+  (p.ordenes||[]).forEach(function(o){
+    piezasDeOrden(o).forEach(function(z){
+      var r=el("tr"); r.appendChild(el("td","c","☐")); r.appendChild(el("td",null,z.desc)); r.appendChild(el("td",null,z.code)); r.appendChild(el("td",null,"Fabricado "+(o.material||o.mat))); tb.appendChild(r);
+    });
+  });
+  h.appendChild(tb);
+  setTimeout(function(){ window.print(); }, 50);
+});
+$("btnImprimirEt").addEventListener("click",function(){
+  var p=almacen[$("panelMaestro").dataset.id]; if(!p) return;
+  var pz=construirPiezas(p.lineas);
+  if(!pz.length){ alert("Este pedido no tiene bultos de almacén: todo son piezas fabricadas."); return; }
+  imprimirEtiquetas(pz.map(function(z){
+    return {qr:qrAlm(p.id,z), titulo:p.id, l1:"Bulto "+z.n+" de "+pz.length+"   Art. "+z.code, l2:z.desc, l3:p.cliente||""};
+  }), $("mFormato").value);
 });
 function pintarRecientes(){
   var c=$("recientes"), ids=Object.keys(almacen).sort(function(a,b){return (almacen[b].creado||0)-(almacen[a].creado||0);});
   if(!ids.length){ c.innerHTML='<p class="hint">Aún no has creado ninguna hoja de carga en este equipo.</p>'; return; }
   c.innerHTML="";
   ids.slice(0,30).forEach(function(id){
-    var p=almacen[id];
-    var row=document.createElement("div"); row.className="ped";
-    var t=document.createElement("div");
-    var a=document.createElement("div"); a.className="d"; a.textContent=p.id+"  "+(p.cliente||"");
-    var b=document.createElement("div"); b.className="sub"; b.textContent=(p.fecha?p.fecha+", ":"")+construirPiezas(p.lineas).length+" etiquetas";
-    t.appendChild(a); t.appendChild(b);
-    var acc=document.createElement("div"); acc.className="acc";
-    var v=document.createElement("button"); v.className="btn sec"; v.textContent="Abrir";
-    v.addEventListener("click",function(){ mostrarMaestro(id); });
-    var del=document.createElement("button"); del.className="btn sec"; del.textContent="Borrar";
-    del.addEventListener("click",function(){
+    var p=almacen[id], t=totalesPedido(p);
+    var row=el("div","ped"), d=el("div");
+    d.appendChild(el("div","d",p.id+"  "+(p.cliente||"")));
+    d.appendChild(el("div","sub",(p.fecha?p.fecha+", ":"")+t.a+" bultos + "+t.f+" fabricadas"));
+    var acc=el("div","acc");
+    var v=el("button","btn sec sm","Abrir"); v.addEventListener("click",function(){ mostrarMaestro(id); });
+    var del=el("button","btn sec sm","Borrar"); del.addEventListener("click",function(){
       if(!confirm("¿Borrar el pedido "+id+" de este equipo?")) return;
       delete almacen[id]; lsSet("wsa_pedidos",almacen); pintarRecientes();
       if($("panelMaestro").dataset.id===id) $("panelMaestro").style.display="none";
     });
-    acc.appendChild(v); acc.appendChild(del);
-    row.appendChild(t); row.appendChild(acc); c.appendChild(row);
+    acc.appendChild(v); acc.appendChild(del); row.appendChild(d); row.appendChild(acc); c.appendChild(row);
   });
-}
-function prepararHoja(p){
-  var piezas=construirPiezas(p.lineas), h=$("hoja"); h.innerHTML="";
-  var cab=document.createElement("div"); cab.className="cab";
-  var q=document.createElement("div"); q.className="qrm"; q.innerHTML=svgMaestro(p);
-  var info=document.createElement("div");
-  var h1=document.createElement("h1"); h1.textContent="Hoja de carga · "+p.id;
-  info.appendChild(h1);
-  [p.cliente, p.direccion, (p.fecha?"Entrega: "+p.fecha:""), piezas.length+" bultos"].forEach(function(s){
-    if(!s) return; var e=document.createElement("p"); e.textContent=s; info.appendChild(e);
-  });
-  var av=document.createElement("p"); av.className="aviso"; av.textContent="Repartidor: escanea primero este código y después la etiqueta de cada bulto.";
-  info.appendChild(av);
-  cab.appendChild(q); cab.appendChild(info); h.appendChild(cab);
-  var g=document.createElement("div"); g.className="grid";
-  piezas.forEach(function(pz){
-    var et=document.createElement("div"); et.className="et";
-    var qq=document.createElement("div"); qq.className="qr"; qq.innerHTML=svgQR("WS|"+p.id+"|"+pz.n,"M");
-    var t=document.createElement("div"); t.className="t";
-    var a=document.createElement("div"); a.className="p"; a.textContent=p.id;
-    var b=document.createElement("div"); b.className="b"; b.textContent="Bulto "+pz.n+" de "+piezas.length+"   Art. "+pz.code;
-    var c=document.createElement("div"); c.className="ds"; c.textContent=pz.desc;
-    var d=document.createElement("div"); d.className="cl"; d.textContent=p.cliente||"";
-    t.appendChild(a); t.appendChild(b); t.appendChild(c); t.appendChild(d);
-    et.appendChild(qq); et.appendChild(t); g.appendChild(et);
-  });
-  h.appendChild(g);
 }
 
 /* ============ REPARTO ============ */
 var ruta=lsGet("wsr_pedidos",{});
 var activo=lsGet("wsr_activo",null);
-var ultimoN=null;
+var ultimaKey=null;
 
+function recalcular(p){
+  p.piezas=construirPiezas(p.lineas||[]);
+  (p.ordenes||[]).forEach(function(o){ p.piezas=p.piezas.concat(piezasDeOrden(o)); });
+}
 function marcas(id){ return lsGet("wsr_m_"+id,{}); }
 function guardarMarcas(id,m){ lsSet("wsr_m_"+id,m); }
 function pintarReparto(){
@@ -507,41 +882,47 @@ function pintarReparto(){
   var ch=$("chips"); ch.innerHTML="";
   if(ids.length>1){
     ids.forEach(function(id){
-      var p=ruta[id], m=marcas(id), k=p.piezas.filter(function(z){return m[z.n];}).length;
-      var b=document.createElement("button"); b.className="chip"+(id===activo?" on":"");
-      b.textContent=id+"  "+k+"/"+p.piezas.length;
-      b.addEventListener("click",function(){ activo=id; ultimoN=null; pintarReparto(); });
+      var p=ruta[id], m=marcas(id), k=p.piezas.filter(function(z){return m[z.key];}).length;
+      var b=el("button","chip"+(id===activo?" on":""), id+"  "+k+"/"+p.piezas.length);
+      b.addEventListener("click",function(){ activo=id; ultimaKey=null; pintarReparto(); });
       ch.appendChild(b);
     });
   }
   var p=ruta[activo], m=marcas(activo);
-  var k=p.piezas.filter(function(z){return m[z.n];}).length, tot=p.piezas.length, falt=tot-k;
+  var A=p.piezas.filter(function(z){return z.tipo==="A";}), F=p.piezas.filter(function(z){return z.tipo==="F";});
+  var kA=A.filter(function(z){return m[z.key];}).length, kF=F.filter(function(z){return m[z.key];}).length;
+  var k=kA+kF, tot=p.piezas.length, falt=tot-k;
   var mk=$("marcador"); mk.className="marcador "+(falt?"pend":"ok"); mk.innerHTML="";
-  var num=document.createElement("div"); num.className="num"; num.innerHTML=k+"<span> / "+tot+"</span>";
-  var t=document.createElement("div"); t.className="txt";
-  t.textContent= falt ? ("Faltan "+falt+" bulto"+(falt>1?"s":"")+" por cargar") : "Carga completa. Todo está en el camión.";
-  mk.appendChild(num); mk.appendChild(t);
+  var nm=el("div","num"); nm.innerHTML=k+"<span> / "+tot+"</span>";
+  var t=el("div","txt", falt ? ("Faltan "+falt+" por cargar") : "Carga completa. Todo está en el camión.");
+  var parts=[];
+  if(A.length) parts.push("Almacén "+kA+"/"+A.length);
+  if(F.length) parts.push("Fabricadas "+kF+"/"+F.length);
+  t.appendChild(el("small",null,parts.join(" · ")));
+  mk.appendChild(nm); mk.appendChild(t);
   txt("rTitulo","Pedido "+p.id);
   txt("rCliente",[p.cliente,p.direccion,p.fecha].filter(Boolean).join(". "));
-  var ul=$("rLista"); ul.innerHTML="";
-  var orden=p.piezas.slice().sort(function(a,b){ return (m[a.n]?1:0)-(m[b.n]?1:0) || a.n-b.n; });
-  orden.forEach(function(z){
-    var li=document.createElement("li");
-    if(m[z.n]) li.classList.add("done");
-    if(z.n===ultimoN) li.classList.add("recien");
-    var tk=document.createElement("span"); tk.className="tick"; tk.textContent=m[z.n]?"✓":"";
-    var d=document.createElement("div");
-    var a=document.createElement("div"); a.className="d"; a.textContent=z.desc;
-    var b=document.createElement("div"); b.className="sub"; b.textContent="Bulto "+z.n+", art. "+z.code;
-    d.appendChild(a); d.appendChild(b);
-    li.appendChild(tk); li.appendChild(d);
-    li.addEventListener("click",function(){
-      var mm=marcas(activo);
-      if(mm[z.n]){ if(!confirm("¿Desmarcar el bulto "+z.n+"?")) return; delete mm[z.n]; }
-      else { if(!confirm("¿Marcar a mano el bulto "+z.n+" sin escanear?")) return; mm[z.n]=Date.now(); }
-      guardarMarcas(activo,mm); pintarReparto();
+  var cont=$("rListas"); cont.innerHTML="";
+  [["Bultos de almacén",A],["Piezas fabricadas",F]].forEach(function(g){
+    if(!g[1].length) return;
+    cont.appendChild(el("h3",null,g[0]));
+    var ul=el("ul","lista");
+    g[1].slice().sort(function(a,b){ return (m[a.key]?1:0)-(m[b.key]?1:0); }).forEach(function(z){
+      var li=el("li", (m[z.key]?"done":"")+(z.key===ultimaKey?" recien":""));
+      li.appendChild(el("span","tick",m[z.key]?"✓":""));
+      var d=el("div");
+      d.appendChild(el("div","d",z.desc));
+      d.appendChild(el("div","sub", z.tipo==="A" ? ("Bulto "+z.n+", art. "+z.code) : ("Fabricado "+z.mat+", línea "+z.linea)));
+      li.appendChild(d);
+      li.addEventListener("click",function(){
+        var mm=marcas(activo);
+        if(mm[z.key]){ if(!confirm("¿Desmarcar «"+z.desc+"»?")) return; delete mm[z.key]; }
+        else { if(!confirm("¿Marcar a mano «"+z.desc+"» sin escanear?")) return; mm[z.key]=Date.now(); }
+        guardarMarcas(activo,mm); pintarReparto();
+      });
+      ul.appendChild(li);
     });
-    ul.appendChild(li);
+    cont.appendChild(ul);
   });
 }
 function aviso(t,tipo){
@@ -560,6 +941,7 @@ function sonido(f,ms){
   }catch(e){}
 }
 function vibrar(p){ try{ if(navigator.vibrate) navigator.vibrate(p); }catch(e){} }
+function error(t){ aviso(t,"ko"); sonido(220,350); vibrar([100,60,100]); }
 
 var ultimoCod="", ultimoT=0;
 function procesar(code){
@@ -567,31 +949,50 @@ function procesar(code){
   if(code===ultimoCod && ahora-ultimoT<2500) return;
   ultimoCod=code; ultimoT=ahora;
 
-  if(code.indexOf("WSM1")===0){
-    var p=decodificarMaestro(code);
-    if(!p){ aviso("Código de pedido dañado. Prueba otra vez.","ko"); sonido(220,250); return; }
-    var nuevo=!ruta[p.id];
-    ruta[p.id]=p; lsSet("wsr_pedidos",ruta); activo=p.id; ultimoN=null;
-    aviso((nuevo?"Pedido "+p.id+" cargado: ":"Pedido "+p.id+" ya estaba cargado: ")+p.piezas.length+" bultos. Ahora escanea las etiquetas.","ok");
+  if(code.indexOf("WSO1")===0){
+    var o=decodificarOrden(code);
+    if(!o){ error("Código de orden dañado. Prueba otra vez."); return; }
+    var pe=ruta[o.pedido]||{id:o.pedido, fecha:"", cliente:"", direccion:"", lineas:[], ordenes:[]};
+    pe.ordenes=(pe.ordenes||[]).filter(function(x){ return x.mat!==o.mat; }).concat([{mat:o.mat, material:o.material, lineas:o.lineas}]);
+    recalcular(pe);
+    var nuevoPed=!ruta[o.pedido];
+    ruta[o.pedido]=pe; lsSet("wsr_pedidos",ruta); activo=o.pedido; ultimaKey=null;
+    aviso("Orden "+(o.material||o.mat)+" cargada en el pedido "+o.pedido+": "+piezasDeOrden(o).length+" piezas fabricadas"+(nuevoPed?". Falta la hoja de carga del pedido para el resto.":"."),"ok");
     sonido(660,90); setTimeout(function(){sonido(990,120);},110); vibrar(80);
     pintarReparto(); return;
   }
-  var f=code.split("|");
-  if(f.length!==3 || f[0]!=="WS"){ aviso("Este código no es de Wood Store.","ko"); sonido(220,250); return; }
-  var pid=f[1], n=parseInt(f[2],10);
-  if(!ruta[pid]){ aviso("El bulto es del pedido "+pid+", que no está cargado. Escanea primero su hoja de carga.","ko"); sonido(220,350); vibrar([100,60,100]); return; }
-  if(pid!==activo){ aviso("¡Cuidado! Este bulto es del pedido "+pid+", no del "+activo+".","ko"); sonido(220,350); vibrar([100,60,100]); return; }
-  var p2=ruta[pid], z=p2.piezas.filter(function(x){return x.n===n;})[0];
-  if(!z){ aviso("El bulto "+n+" no existe en el pedido "+pid+".","ko"); sonido(220,250); return; }
+  if(code.indexOf("WSM")===0){
+    var p=decodificarMaestro(code);
+    if(!p){ error("Código de pedido dañado. Prueba otra vez."); return; }
+    var prev=ruta[p.id];
+    if(prev && prev.ordenes){   // conserva órdenes cargadas aparte que no vengan en la hoja
+      var mats=(p.ordenes||[]).map(function(x){return x.mat;});
+      prev.ordenes.forEach(function(x){ if(mats.indexOf(x.mat)<0) p.ordenes.push(x); });
+      recalcular(p);
+    }
+    var nuevo=!ruta[p.id];
+    ruta[p.id]=p; lsSet("wsr_pedidos",ruta); activo=p.id; ultimaKey=null;
+    aviso((nuevo?"Pedido "+p.id+" cargado: ":"Pedido "+p.id+" ya estaba cargado: ")+p.piezas.length+" en total. Ahora escanea las etiquetas.","ok");
+    sonido(660,90); setTimeout(function(){sonido(990,120);},110); vibrar(80);
+    pintarReparto(); return;
+  }
+  var f=code.split("|"), pid, key;
+  if(f[0]==="WS" && f.length===3){ pid=f[1]; key="A"+parseInt(f[2],10); }
+  else if(f[0]==="WSF" && f.length===5){ pid=f[1]; key="F|"+f[2]+"|"+parseInt(f[3],10)+"|"+parseInt(f[4],10); }
+  else { error("Este código no es de Wood Store."); return; }
+  if(!ruta[pid]){ error("Es del pedido "+pid+", que no está cargado. Escanea primero su hoja de carga."); return; }
+  if(pid!==activo){ error("¡Cuidado! Esto es del pedido "+pid+", no del "+activo+"."); return; }
+  var p2=ruta[pid], z=p2.piezas.filter(function(x){return x.key===key;})[0];
+  if(!z){ error(f[0]==="WSF" ? "Esa pieza fabricada no figura en la hoja de carga del pedido "+pid+". ¿Falta subir su orden de máquinas?" : "Ese bulto no existe en el pedido "+pid+"."); return; }
   var m=marcas(pid);
-  if(m[n]){ aviso("Bulto "+n+" ya estaba marcado.",""); sonido(440,80); return; }
-  m[n]=ahora; guardarMarcas(pid,m); ultimoN=n;
-  var quedan=p2.piezas.filter(function(x){return !m[x.n];}).length;
+  if(m[key]){ aviso("Ya estaba marcado: "+z.desc,""); sonido(440,80); return; }
+  m[key]=ahora; guardarMarcas(pid,m); ultimaKey=key;
+  var quedan=p2.piezas.filter(function(x){return !m[x.key];}).length;
   if(quedan===0){
-    aviso("Bulto "+n+" OK. ¡Carga completa!","ok");
+    aviso("OK: "+z.desc+". ¡Carga completa!","ok");
     sonido(660,100); setTimeout(function(){sonido(880,100);},120); setTimeout(function(){sonido(1175,220);},240); vibrar([80,50,80,50,200]);
   } else {
-    aviso("Bulto "+n+" OK: "+z.desc+". Quedan "+quedan+".","ok");
+    aviso("OK: "+z.desc+". Quedan "+quedan+".","ok");
     sonido(990,90); vibrar(50);
   }
   pintarReparto();
@@ -613,7 +1014,7 @@ async function iniciarCam(){
   try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){}
   var v=$("video"); v.srcObject=stream; await v.play();
   $("visor").classList.add("on"); $("btnCam").textContent="Parar"; $("btnCam").classList.add("sec");
-  aviso(activo?"Apunta a la etiqueta de cada bulto.":"Apunta al código grande de la hoja de carga.","");
+  aviso(activo?"Apunta a la etiqueta de cada bulto o pieza.":"Apunta al código grande de la hoja de carga.","");
   if("BarcodeDetector" in window){ try{ detector=new BarcodeDetector({formats:["qr_code"]}); }catch(e){ detector=null; } }
   try{ if(navigator.wakeLock) wake=await navigator.wakeLock.request("screen"); }catch(e){}
   bucleOn=true; bucle();
@@ -650,18 +1051,18 @@ document.addEventListener("visibilitychange",function(){ if(document.hidden) par
 /* acciones reparto */
 $("btnResumen").addEventListener("click",function(){
   var p=ruta[activo]; if(!p) return;
-  var m=marcas(activo), falt=p.piezas.filter(function(z){return !m[z.n];});
+  var m=marcas(activo), falt=p.piezas.filter(function(z){return !m[z.key];});
   var hora=new Date().toLocaleTimeString("es-ES",{hour:"2-digit",minute:"2-digit"});
   var t="Pedido "+p.id+(p.cliente?" ("+p.cliente+")":"")+"\n";
-  t+= falt.length ? "Carga INCOMPLETA: "+(p.piezas.length-falt.length)+"/"+p.piezas.length+" bultos a las "+hora+"\nFaltan:\n"+
-      falt.map(function(z){return "- Bulto "+z.n+": "+z.desc;}).join("\n")
-    : "Carga completa: "+p.piezas.length+"/"+p.piezas.length+" bultos a las "+hora;
+  t+= falt.length ? "Carga INCOMPLETA: "+(p.piezas.length-falt.length)+"/"+p.piezas.length+" a las "+hora+"\nFaltan:\n"+
+      falt.map(function(z){return "- "+(z.tipo==="A"?"Bulto "+z.n+": ":"Fabricado: ")+z.desc;}).join("\n")
+    : "Carga completa: "+p.piezas.length+"/"+p.piezas.length+" a las "+hora;
   if(navigator.share){ navigator.share({text:t}).catch(function(){}); }
   else window.open("https://wa.me/?text="+encodeURIComponent(t),"_blank");
 });
 $("btnReiniciar").addEventListener("click",function(){
-  if(!activo||!confirm("¿Desmarcar todos los bultos del pedido "+activo+"?")) return;
-  guardarMarcas(activo,{}); ultimoN=null; pintarReparto();
+  if(!activo||!confirm("¿Desmarcar todo el pedido "+activo+"?")) return;
+  guardarMarcas(activo,{}); ultimaKey=null; pintarReparto();
 });
 $("btnQuitar").addEventListener("click",function(){
   if(!activo||!confirm("¿Quitar el pedido "+activo+" de este móvil?")) return;
@@ -669,9 +1070,20 @@ $("btnQuitar").addEventListener("click",function(){
   delete ruta[activo]; lsSet("wsr_pedidos",ruta); activo=null; pintarReparto(); aviso("","");
 });
 
+/* migración: pedidos cargados con la versión anterior (sin clave por pieza) */
+Object.keys(ruta).forEach(function(id){
+  var p=ruta[id];
+  if(p && p.piezas && p.piezas.length && !p.piezas[0].key){
+    p.piezas.forEach(function(z){ z.key="A"+z.n; z.tipo="A"; });
+    var m=marcas(id), nm={}; Object.keys(m).forEach(function(n){ nm["A"+n]=m[n]; }); guardarMarcas(id,nm);
+  }
+});
+lsSet("wsr_pedidos",ruta);
+
 /* arranque */
 pintarReparto();
 pintarRecientes();
+pintarOrdenesRecientes();
 if(window.matchMedia("(min-width: 900px)").matches && !Object.keys(ruta).length){
   document.querySelector('.tabs button[data-tab="almacen"]').click();
 }
