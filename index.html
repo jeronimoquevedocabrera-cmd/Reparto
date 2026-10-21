@@ -73,7 +73,7 @@ textarea{min-height:120px;font-family:ui-monospace,Menlo,monospace;font-size:.82
 .visor{position:relative;border-radius:14px;overflow:hidden;background:#000;margin-top:12px;display:none}
 .visor.on{display:block}
 .visor video{width:100%;height:44vh;object-fit:cover;display:block}
-.visor .marco{position:absolute;inset:18% 22%;border:3px solid rgba(255,255,255,.85);border-radius:14px;
+.visor .marco{position:absolute;inset:14% 24%;border:3px solid rgba(255,255,255,.85);border-radius:14px;
   box-shadow:0 0 0 2000px rgba(0,0,0,.28);transition:border-color .15s}
 .visor.flash-ok .marco{border-color:#4ade80}
 .visor.flash-ko .marco{border-color:#f87171}
@@ -169,7 +169,8 @@ table.resumen td.c{width:7mm;text-align:center}
 <!-- ================= REPARTO ================= -->
 <section id="reparto" class="on">
   <button class="btn big" id="btnCam">Escanear</button>
-  <div class="visor" id="visor"><video id="video" playsinline muted></video><div class="marco"></div></div>
+  <div class="visor" id="visor"><video id="video" playsinline muted></video><div class="marco"></div>
+    <button class="btn sec sm" id="btnLuz" style="display:none;position:absolute;right:10px;bottom:10px">Linterna</button></div>
   <p id="scanMsg"></p>
 
   <div id="sinPedido" class="card empty">
@@ -946,7 +947,7 @@ function error(t){ aviso(t,"ko"); sonido(220,350); vibrar([100,60,100]); }
 var ultimoCod="", ultimoT=0;
 function procesar(code){
   var ahora=Date.now();
-  if(code===ultimoCod && ahora-ultimoT<2500) return;
+  if(code===ultimoCod && ahora-ultimoT<1500) return;
   ultimoCod=code; ultimoT=ahora;
 
   if(code.indexOf("WSO1")===0){
@@ -1005,7 +1006,7 @@ async function iniciarCam(){
     aviso("Este navegador no permite usar la cámara. Abre la página en Safari o Chrome.","ko"); return;
   }
   try{
-    stream=await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:"environment"}, width:{ideal:1280}, height:{ideal:720}}});
+    stream=await navigator.mediaDevices.getUserMedia({audio:false, video:{facingMode:{ideal:"environment"}, width:{ideal:1920}, height:{ideal:1080}}});
   }catch(e){
     var n=e&&e.name;
     aviso(n==="NotAllowedError" ? "Sin permiso de cámara. Actívalo en los ajustes del navegador para esta web." : "No se pudo abrir la cámara ("+(n||"error")+").","ko");
@@ -1013,6 +1014,11 @@ async function iniciarCam(){
   }
   try{ actx=actx||new (window.AudioContext||window.webkitAudioContext)(); if(actx.state==="suspended") actx.resume(); }catch(e){}
   var v=$("video"); v.srcObject=stream; await v.play();
+  try{
+    var track=stream.getVideoTracks()[0], caps=track.getCapabilities?track.getCapabilities():{};
+    if(caps.focusMode && caps.focusMode.indexOf("continuous")>=0) await track.applyConstraints({advanced:[{focusMode:"continuous"}]});
+    $("btnLuz").style.display = caps.torch ? "block" : "none";
+  }catch(e){}
   $("visor").classList.add("on"); $("btnCam").textContent="Parar"; $("btnCam").classList.add("sec");
   aviso(activo?"Apunta a la etiqueta de cada bulto o pieza.":"Apunta al código grande de la hoja de carga.","");
   if("BarcodeDetector" in window){ try{ detector=new BarcodeDetector({formats:["qr_code"]}); }catch(e){ detector=null; } }
@@ -1020,12 +1026,16 @@ async function iniciarCam(){
   bucleOn=true; bucle();
 }
 function pararCam(){
-  bucleOn=false;
+  bucleOn=false; luz=false; $("btnLuz").style.display="none"; $("btnLuz").textContent="Linterna";
   if(stream){ stream.getTracks().forEach(function(t){t.stop();}); stream=null; }
   $("video").srcObject=null; $("visor").classList.remove("on");
   $("btnCam").textContent="Escanear"; $("btnCam").classList.remove("sec");
   try{ if(wake){ wake.release(); wake=null; } }catch(e){}
 }
+var turno=0, luz=false;
+$("btnLuz").addEventListener("click",async function(){
+  try{ luz=!luz; await stream.getVideoTracks()[0].applyConstraints({advanced:[{torch:luz}]}); this.textContent=luz?"Apagar luz":"Linterna"; }catch(e){}
+});
 var cv=document.createElement("canvas"), cx=cv.getContext("2d",{willReadFrequently:true});
 async function bucle(){
   if(!bucleOn) return;
@@ -1036,14 +1046,23 @@ async function bucle(){
         var r=await detector.detect(v);
         if(r&&r.length) procesar(r[0].rawValue);
       } else if(window.jsQR){
-        var w=Math.min(720,v.videoWidth), h=Math.round(v.videoHeight*w/v.videoWidth);
-        cv.width=w; cv.height=h; cx.drawImage(v,0,0,w,h);
-        var q=jsQR(cx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"dontInvert"});
+        var vw=v.videoWidth, vh=v.videoHeight, q=null;
+        if(turno++%3!==2){
+          // centro de la imagen sin reducir: el QR pequeño conserva todos sus píxeles
+          var lado=Math.round(Math.min(vw,vh)*0.72), sx=Math.round((vw-lado)/2), sy=Math.round((vh-lado)/2);
+          var t=Math.min(lado,760); cv.width=t; cv.height=t;
+          cx.drawImage(v,sx,sy,lado,lado,0,0,t,t);
+          q=jsQR(cx.getImageData(0,0,t,t).data,t,t,{inversionAttempts:"dontInvert"});
+        } else {
+          var w=Math.min(960,vw), h=Math.round(vh*w/vw);
+          cv.width=w; cv.height=h; cx.drawImage(v,0,0,w,h);
+          q=jsQR(cx.getImageData(0,0,w,h).data,w,h,{inversionAttempts:"dontInvert"});
+        }
         if(q&&q.data) procesar(q.data);
       }
     }catch(e){}
   }
-  setTimeout(bucle, 120);
+  setTimeout(bucle, detector?90:30);
 }
 $("btnCam").addEventListener("click",function(){ stream?pararCam():iniciarCam(); });
 document.addEventListener("visibilitychange",function(){ if(document.hidden) pararCam(); });
